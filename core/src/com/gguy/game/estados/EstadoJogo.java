@@ -18,11 +18,12 @@ public class EstadoJogo extends EstadoBase {
     private int nObstaculos = 6;
    // private Array<Muro> obstaculos;
     private Array<WalkPlatform> walkPlats;
+    private WalkPlatform currentStepping;//todo fazer isto dp, estou a curtir James Blake
     private final static String TAG = "infoMessage";
 
     protected EstadoJogo(EstadosManager emg) {
         super(emg);
-        fundo = new Texture("fundo1.png");
+        fundo = new Texture("background/fundo1.png");
         gguy = new Guy(50,HEIGHT/2);
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
@@ -34,10 +35,14 @@ public class EstadoJogo extends EstadoBase {
 
     }
 
+    private int getColisionLimit(){
+        return 0;
+    }
+
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched() && !gguy.isGuyFlying()){
-           gguy.changeGravity();
+            gguy.changeGravity();
         }
     }
 
@@ -51,10 +56,8 @@ public class EstadoJogo extends EstadoBase {
         for(WalkPlatform obstaculo : walkPlats){
             if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH)
                 obstaculo.reposition(obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH*nObstaculos);
-            float fix = obstaculo.ColideGuy(gguy.getColisaoBox());
-            if(fix != 0){
+            if(obstaculo.ColideGuy(gguy.getColisaoBox())){
                 gguy.atingeChao(); //todo isto está buggy!!
-               // gguy.fixPosY(fix);
                 Logger banana = new Logger(TAG,Logger.INFO);
                 String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + obstaculo.getPartBaixo().y;
                 banana.info(cenas);

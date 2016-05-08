@@ -14,7 +14,7 @@ public class Muro {
     private Random rand;
 
     public Muro(float x){
-        temp = new Texture("obst.png");//como e repetido poderia ser estatico
+        temp = new Texture("map/obst.png");//como e repetido poderia ser estatico
 
         rand = new Random();
         obsCima = new Vector2(x, rand.nextInt(130) + 100 + 120);

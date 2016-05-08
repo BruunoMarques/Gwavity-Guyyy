@@ -17,9 +17,9 @@ public class EstadoMenu extends EstadoBase {
     private final static String TAG = "infoMessage";
     public EstadoMenu(EstadosManager emg) {
         super(emg);
-        wallpapper = new Texture("wpp.png");
-        btn1 = new Texture("Untitled.png");
-        music = Gdx.audio.newMusic(Gdx.files.internal("kendrick.mp3"));
+        wallpapper = new Texture("background/wpp.png"); //todo fazer defines disto para ficar bonito
+        btn1 = new Texture("background/Untitled.png");
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/kendrick.mp3"));
         music.setLooping(false);
         music.setVolume(0.8f);
         music.play();

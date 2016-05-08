@@ -8,7 +8,7 @@ import com.gguy.game.estados.EstadoBase;
 /**
  * Created by Jonas on 02-05-2016.
  */
-public class WalkPlatform {
+public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa. Depurar isto
     private Texture platf;
     //eventualmente um random
     private Vector2 partCima, partBaixo;
@@ -18,7 +18,7 @@ public class WalkPlatform {
     public WalkPlatform(float x){
         partCima = new Vector2(x, EstadoBase.HEIGHT/2+100);
         partBaixo = new Vector2(x, EstadoBase.HEIGHT/2-150);
-        platf = new Texture("walkplat.png");
+        platf = new Texture("map/walkplat.png");
         PLATF_WIDTH = platf.getWidth();
 
         colisaoCima = new Rectangle(partCima.x,partCima.y,platf.getWidth(),platf.getHeight());
@@ -44,10 +44,8 @@ public class WalkPlatform {
         colisaoBaixo.setPosition(partBaixo.x,partBaixo.y);
     }
 
-    public float ColideGuy(Rectangle player){
-        if(player.overlaps(colisaoCima))return partCima.y - platf.getHeight() - 1;
-        if(player.overlaps(colisaoBaixo))return partBaixo.y + player.getHeight() + 1;
-        else return 0;
+    public boolean ColideGuy(Rectangle player){
+        return player.overlaps(colisaoCima) ||  player.overlaps(colisaoBaixo);
     }
 
     public void freeMemory(){
