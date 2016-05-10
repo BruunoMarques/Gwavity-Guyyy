@@ -1,5 +1,7 @@
 package com.gguy.game.gamestuff;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -29,6 +31,10 @@ public class Guy {
     private Animation inverseWalkAnimation;
     //private Animation flyAnimation;
 
+    private Sound jumpS;
+    private Sound catch_powerS; //todo cenas do power
+    private Sound deathS;
+
     private boolean hasFlyingAnim;
     private boolean isUpsideDown;
     private boolean isFlying;
@@ -47,6 +53,7 @@ public class Guy {
         jumpTexture = new Texture(jumpT);
         walkTexture = new Texture(walkT);
         inverseWalkTexture = new Texture(iwalkT);
+        jumpS = Gdx.audio.newSound(Gdx.files.internal("sounds/jump.wav"));//todo mudar endereco
     }
 
     public void buySkin(String skin, int jumpframes, int walkframes){ //todo gerir dinheiro ganho. Requere correr freeMemory antes para mudar a skin
@@ -63,6 +70,7 @@ public class Guy {
             jumpTexture = new Texture(jumpT);
             walkTexture = new Texture(walkT);
             inverseWalkTexture = new Texture(iwalkT);
+            jumpS = Gdx.audio.newSound(Gdx.files.internal("sound/" + skin + "/jump.wav"));
         }
         catch(GdxRuntimeException e){
             errText.error(e.getMessage());
@@ -149,6 +157,10 @@ public class Guy {
         return colisao;
     }
 
+    public Sound getJumpS(){
+        return jumpS;
+    }
+
     public void fixPosY(float y){
         posicao.y = y;
     }
@@ -158,5 +170,6 @@ public class Guy {
         jumpTexture.dispose();
         walkTexture.dispose();
         inverseWalkTexture.dispose();
+        jumpS.dispose();
     }
 }

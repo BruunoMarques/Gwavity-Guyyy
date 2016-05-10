@@ -1,6 +1,8 @@
 package com.gguy.game.estados;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
@@ -11,7 +13,9 @@ public abstract class EstadoBase {
     protected OrthographicCamera camara;
     protected Vector3 rato; //Wtf rato?
     protected EstadosManager emg;
-    public static int WIDTH; //todo conjugar com tlm*/
+    protected Texture wallpapper; //todo isto é temp
+    protected Music music;
+    public static int WIDTH;
     public static int HEIGHT;
     static{
         WIDTH = 1280;

@@ -13,7 +13,7 @@ import com.gguy.game.gamestuff.obstaculos.WalkPlatform;
  */
 public class EstadoJogo extends EstadoBase {
     private Guy gguy;
-    private Texture fundo; //todo isto é temp
+
     private float timePassed = 0;
     private int nObstaculos = 6;
    // private Array<Muro> obstaculos;
@@ -23,7 +23,11 @@ public class EstadoJogo extends EstadoBase {
 
     protected EstadoJogo(EstadosManager emg) {
         super(emg);
-        fundo = new Texture("background/fundo1.png");
+        wallpapper = new Texture("background/bck3.png");
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/resonance.mp3")); //todo selecionar uma random?
+        music.setLooping(false);
+        music.setVolume(0.3f);
+        music.play();
         gguy = new Guy(50,HEIGHT/2);
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
@@ -43,6 +47,7 @@ public class EstadoJogo extends EstadoBase {
     protected void handleInput() {
         if(Gdx.input.justTouched() && !gguy.isGuyFlying()){
             gguy.changeGravity();
+            gguy.getJumpS().play();
         }
     }
 
@@ -70,7 +75,7 @@ public class EstadoJogo extends EstadoBase {
     public void render(SpriteBatch spriteB) {
         spriteB.setProjectionMatrix(camara.combined);
         spriteB.begin();
-        spriteB.draw(fundo,camara.position.x - (camara.viewportWidth/2),camara.position.y - (camara.viewportHeight/2));
+        spriteB.draw(wallpapper,camara.position.x - (camara.viewportWidth/2),camara.position.y - (camara.viewportHeight/2),WIDTH/2, HEIGHT/2);
         if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y,50,50);
         else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y,50,50);
         else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y,50,50);
@@ -84,9 +89,9 @@ public class EstadoJogo extends EstadoBase {
 
     @Override
     public void freeMemory() {
-        fundo.dispose();
+        wallpapper.dispose();
         gguy.freeMemory();
-
+        music.dispose();
         for(WalkPlatform obstaculo : walkPlats){
             obstaculo.freeMemory();
         }
