@@ -28,7 +28,7 @@ public class EstadoJogo extends EstadoBase {
         music.setLooping(false);
         music.setVolume(0.3f);
         music.play();
-        gguy = new Guy(50,HEIGHT/2);
+        gguy = new Guy(50,HEIGHT/2+50);
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
         walkPlats = new Array<WalkPlatform>();
@@ -39,13 +39,20 @@ public class EstadoJogo extends EstadoBase {
 
     }
 
-    private int getColisionLimit(){
-        return 0;
+    private float getColisionLimit(){
+        float y1 = currentStepping.getPartBaixo().y + gguy.getColisaoBox().getHeight();
+        float y2 = currentStepping.getPartCima().y - currentStepping.getPlatf().getHeight();
+        float yg = gguy.getPosicao().y;
+
+        if(yg <= y1) return y1+1;
+
+        else return y2-1;
     }
 
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched() && !gguy.isGuyFlying()){
+            gguy.fixPosY(getColisionLimit());
             gguy.changeGravity();
             gguy.getJumpS().play();
         }
@@ -63,6 +70,7 @@ public class EstadoJogo extends EstadoBase {
                 obstaculo.reposition(obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH*nObstaculos);
             if(obstaculo.ColideGuy(gguy.getColisaoBox())){
                 gguy.atingeChao(); //todo isto está buggy!!
+                currentStepping = obstaculo;
                 Logger banana = new Logger(TAG,Logger.INFO);
                 String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + obstaculo.getPartBaixo().y;
                 banana.info(cenas);
