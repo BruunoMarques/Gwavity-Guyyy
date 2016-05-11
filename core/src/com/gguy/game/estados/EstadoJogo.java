@@ -44,9 +44,15 @@ public class EstadoJogo extends EstadoBase {
         float y2 = currentStepping.getPartCima().y - currentStepping.getPlatf().getHeight();
         float yg = gguy.getPosicao().y;
 
-        if(yg <= y1) return y1+1;
+        Logger banana = new Logger(TAG,Logger.INFO);
+        String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + y1;
+        banana.info(cenas);
 
-        else return y2-1;
+        if(yg <= y1) return y1+1;
+        else if (yg >= y2) return y2-1;
+        else return yg;
+
+
     }
 
     @Override
@@ -71,9 +77,9 @@ public class EstadoJogo extends EstadoBase {
             if(obstaculo.ColideGuy(gguy.getColisaoBox())){
                 gguy.atingeChao(); //todo isto está buggy!!
                 currentStepping = obstaculo;
-                Logger banana = new Logger(TAG,Logger.INFO);
-                String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + obstaculo.getPartBaixo().y;
-                banana.info(cenas);
+            //    Logger banana = new Logger(TAG,Logger.INFO);
+            //    String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + obstaculo.getPartBaixo().y;
+            //    banana.info(cenas);
             }
         }
         camara.update();
@@ -84,9 +90,9 @@ public class EstadoJogo extends EstadoBase {
         spriteB.setProjectionMatrix(camara.combined);
         spriteB.begin();
         spriteB.draw(wallpapper,camara.position.x - (camara.viewportWidth/2),camara.position.y - (camara.viewportHeight/2),WIDTH/2, HEIGHT/2);
-        if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y,50,50);
-        else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y,50,50);
-        else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y,50,50);
+        if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
+        else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
+        else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         for(WalkPlatform obstaculo : walkPlats){
             spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartCima().x,obstaculo.getPartCima().y);
             spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartBaixo().x,obstaculo.getPartBaixo().y);

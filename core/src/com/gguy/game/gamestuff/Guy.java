@@ -16,6 +16,7 @@ import com.sun.prism.TextureMap;
  * Created by Jonas on 01-05-2016.
  */
 public class Guy {
+
     private final static String TAG = "errorMessage";
     private Vector2 posicao;
     private Vector2 speed;
@@ -24,7 +25,7 @@ public class Guy {
     private Texture jumpTexture;
     private Texture walkTexture;
     private Texture inverseWalkTexture;
-    private Texture flyTexture;
+    //private Texture flyTexture;
     //private Animation idleAnimation;
     private Animation jumpAnimation;
     private Animation walkAnimation;
@@ -70,7 +71,7 @@ public class Guy {
             jumpTexture = new Texture(jumpT);
             walkTexture = new Texture(walkT);
             inverseWalkTexture = new Texture(iwalkT);
-            jumpS = Gdx.audio.newSound(Gdx.files.internal("sound/" + skin + "/jump.wav"));
+            jumpS = Gdx.audio.newSound(Gdx.files.internal("sounds/" + skin + "/jump.wav"));
         }
         catch(GdxRuntimeException e){
             errText.error(e.getMessage());
@@ -93,8 +94,9 @@ public class Guy {
     public Guy(int x, int y){
         posicao = new Vector2(x,y);
         speed = new Vector2(0,0);
-        buySkin("sonic", 4, 8);//todo mudar dp para poder selecionar varios
-        colisao = new Rectangle(x,y,50,50);
+        buySkin("pikachu", 4, 4);//todo mudar dp para poder selecionar varios
+        //buySkin("sonic", 4, 8);
+        colisao = new Rectangle(x,y,walkTexture.getWidth(),walkTexture.getHeight());
         hasFlyingAnim = true;
         isUpsideDown = false;
         isFlying = true;
@@ -141,6 +143,18 @@ public class Guy {
         return player;
     }
 
+    public Texture getWalkTexture() {
+        return walkTexture;
+    }
+
+    public Texture getJumpTexture() {
+        return jumpTexture;
+    }
+
+    public Texture getInverseWalkTexture(){
+        return inverseWalkTexture;
+    }
+
     public Animation getJumpAnimation(){
         return jumpAnimation;
     }
@@ -172,4 +186,5 @@ public class Guy {
         inverseWalkTexture.dispose();
         jumpS.dispose();
     }
+
 }

@@ -12,7 +12,7 @@ import com.gguy.game.estados.EstadosManager;
 public class Gguy extends ApplicationAdapter {
     private EstadosManager estadosJogo;
 	SpriteBatch batch;
-	Texture img;
+//	Texture img;
 
 
 	@Override
