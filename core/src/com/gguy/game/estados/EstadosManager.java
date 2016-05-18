@@ -1,6 +1,9 @@
 package com.gguy.game.estados;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.gguy.game.estados.ferramentas.PlayList;
+import com.gguy.game.estados.ferramentas.SkinInfo;
+import com.gguy.game.estados.ferramentas.SkinList;
 
 import java.util.Stack;
 
@@ -10,8 +13,15 @@ import java.util.Stack;
 public class EstadosManager {
     private Stack<EstadoBase> estados;//ou outra estrutura idk
 
+    public SkinList skins;
+    public SkinInfo skinSelected;
+    public PlayList musicSelected;
+
     public EstadosManager(){
         estados = new Stack<EstadoBase>();
+        musicSelected = new PlayList();
+        skins = new SkinList();
+        skinSelected = skins.getSelectedSkin();
     }
 
     public void addEstado(EstadoBase estado){

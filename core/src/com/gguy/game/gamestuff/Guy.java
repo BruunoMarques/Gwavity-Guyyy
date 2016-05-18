@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
+import com.gguy.game.estados.ferramentas.SkinInfo;
 import com.sun.prism.TextureMap;
 
 /**
@@ -57,7 +58,7 @@ public class Guy {
         jumpS = Gdx.audio.newSound(Gdx.files.internal("sounds/jump.wav"));//todo mudar endereco
     }
 
-    public void buySkin(String skin, int jumpframes, int walkframes){ //todo gerir dinheiro ganho. Requere correr freeMemory antes para mudar a skin
+    public void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho. Requere correr freeMemory antes para mudar a skin
         //this.money -= money;
         String name, jumpT, walkT, iwalkT;
         name = skin + "/" + skin + ".png";
@@ -75,8 +76,10 @@ public class Guy {
         }
         catch(GdxRuntimeException e){
             errText.error(e.getMessage());
-            errText.error("Going to load default text");//todo add smthing here?
+            errText.error("Going to load default texture");//todo add smthing here?
             defaultSkin();
+            walkframes = 8;
+            jumpframes = 4;
         }
         TextureRegion region = new TextureRegion(jumpTexture);
         MyAnim anim = new MyAnim(region,jumpframes,1/30f);
@@ -91,11 +94,10 @@ public class Guy {
         inverseWalkAnimation = anim.getSimpleAnimation();
     }
     //todo era uma vez um fdp que perdeu-se num puto dum sitio todo fdd, e decidiu andar a correr de um lado para o outro só por que lhe deu na mona. Esse gajo chama-se guy pq era mt ofensivo chamar-lhe fdp.
-    public Guy(int x, int y){
+    public Guy(SkinInfo skin, int x, int y){
         posicao = new Vector2(x,y);
         speed = new Vector2(0,0);
-        buySkin("pikachu", 4, 4);//todo mudar dp para poder selecionar varios
-        //buySkin("sonic", 4, 8);
+        buySkin(skin.getName(), skin.getRunningFrames(), skin.getJumpingFrames());
         colisao = new Rectangle(x,y,walkTexture.getWidth(),walkTexture.getHeight());
         hasFlyingAnim = true;
         isUpsideDown = false;
@@ -138,7 +140,7 @@ public class Guy {
     public Vector2 getPosicao() {
         return posicao;
     }
-
+    /* //todo lol
     public Texture getSkin() {
         return player;
     }
@@ -154,7 +156,7 @@ public class Guy {
     public Texture getInverseWalkTexture(){
         return inverseWalkTexture;
     }
-
+    */
     public Animation getJumpAnimation(){
         return jumpAnimation;
     }
@@ -171,8 +173,8 @@ public class Guy {
         return colisao;
     }
 
-    public Sound getJumpS(){
-        return jumpS;
+    public void playJumpSound(){
+        jumpS.play();
     }
 
     public void fixPosY(float y){

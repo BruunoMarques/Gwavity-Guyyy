@@ -16,8 +16,8 @@ public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa
     public final int PLATF_WIDTH;
 
     public WalkPlatform(float x){
-        partCima = new Vector2(x, EstadoBase.HEIGHT/2+100);
-        partBaixo = new Vector2(x, EstadoBase.HEIGHT/2-150);
+        partCima = new Vector2(x, EstadoBase.HEIGHT/2+75);
+        partBaixo = new Vector2(x, EstadoBase.HEIGHT/4);
         platf = new Texture("map/walkplat.png");
         PLATF_WIDTH = platf.getWidth();
 

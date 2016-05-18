@@ -1,10 +1,12 @@
 package com.gguy.game.estados;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
+import com.gguy.game.estados.ferramentas.Botao;
 import com.gguy.game.gamestuff.Guy;
 import com.gguy.game.gamestuff.obstaculos.WalkPlatform;
 
@@ -14,23 +16,40 @@ import com.gguy.game.gamestuff.obstaculos.WalkPlatform;
 public class EstadoJogo extends EstadoBase {
     private Guy gguy;
 
+    private Botao pause_menu;
+    private Botao use_power;
+
     private float timePassed = 0;
+    private float speed = 200; //todo mudar dp, isto e temp
     private int nObstaculos = 6;
    // private Array<Muro> obstaculos;
     private Array<WalkPlatform> walkPlats;
     private WalkPlatform currentStepping;//todo fazer isto dp, estou a curtir James Blake
     private final static String TAG = "infoMessage";
 
-    protected EstadoJogo(EstadosManager emg) {
-        super(emg);
-        wallpapper = new Texture("background/bck3.png");
-        music = Gdx.audio.newMusic(Gdx.files.internal("music/resonance.mp3")); //todo selecionar uma random?
+    private void playMusic(){
+        String selectedMusic = "music/" + emg.musicSelected.selectRandomMusic();
+        music = Gdx.audio.newMusic(Gdx.files.internal(selectedMusic));
         music.setLooping(false);
         music.setVolume(0.3f);
         music.play();
-        gguy = new Guy(50,HEIGHT/2+50);
+    }
+
+    protected EstadoJogo(EstadosManager emg) {
+        super(emg);
+        wallpapper = new Texture("background/bck3.png");
+        playMusic();
+        gguy = new Guy(emg.skinSelected ,50,HEIGHT/4+100);
+
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
+
+        pause_menu = new Botao("background/backbutton.png",WIDTH/2-50,HEIGHT-50); //todo placeholder
+        use_power = new Botao("background/powerbutton.png",WIDTH/2+150,HEIGHT);
+        pause_menu.setCoordView(0,HEIGHT*3/4 - 50);
+        use_power.setCoordView(200,HEIGHT*3/4 - 50);
+
+
         walkPlats = new Array<WalkPlatform>();
         for(int i = 0;i< nObstaculos;i++){
             walkPlats.add(new WalkPlatform(0));
@@ -57,10 +76,21 @@ public class EstadoJogo extends EstadoBase {
 
     @Override
     protected void handleInput() {
-        if(Gdx.input.justTouched() && !gguy.isGuyFlying()){
+
+        if(Gdx.input.justTouched() && pause_menu.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+            camara.setToOrtho(true, WIDTH, HEIGHT);
+            camara.position.x = 0;
+            camara.position.y = 0;
+            emg.remEstadoAct();
+            emg.addEstado(new EstadoMenu(emg));
+        }
+        else if(Gdx.input.justTouched() && !gguy.isGuyFlying()){
+            Logger banana = new Logger(TAG,Logger.INFO);
+            String cenas = "pos_click" + Gdx.input.getX() + ":" + Gdx.input.getY();
+            banana.info(cenas);
             gguy.fixPosY(getColisionLimit());
             gguy.changeGravity();
-            gguy.getJumpS().play();
+            gguy.playJumpSound();
         }
     }
 
@@ -70,6 +100,10 @@ public class EstadoJogo extends EstadoBase {
         gguy.updatePos(dt);
         timePassed += dt;
         camara.position.x = gguy.getPosicao().x;
+
+        speed += dt;
+        use_power.changeViewPosX(use_power.getCoordView().x + (speed * dt));
+        pause_menu.changeViewPosX(pause_menu.getCoordView().x + (speed * dt));
 
         for(WalkPlatform obstaculo : walkPlats){
             if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH)
@@ -83,16 +117,25 @@ public class EstadoJogo extends EstadoBase {
             }
         }
         camara.update();
+        if(!music.isPlaying()){
+            music.dispose();
+            playMusic();
+        }
     }
 
     @Override
     public void render(SpriteBatch spriteB) {
         spriteB.setProjectionMatrix(camara.combined);
         spriteB.begin();
+
         spriteB.draw(wallpapper,camara.position.x - (camara.viewportWidth/2),camara.position.y - (camara.viewportHeight/2),WIDTH/2, HEIGHT/2);
+        spriteB.draw(use_power.getButton(),use_power.getCoordView().x,use_power.getCoordView().y);
+        spriteB.draw(pause_menu.getButton(),pause_menu.getCoordView().x,pause_menu.getCoordView().y);
+
         if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
+
         for(WalkPlatform obstaculo : walkPlats){
             spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartCima().x,obstaculo.getPartCima().y);
             spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartBaixo().x,obstaculo.getPartBaixo().y);
@@ -105,6 +148,9 @@ public class EstadoJogo extends EstadoBase {
     public void freeMemory() {
         wallpapper.dispose();
         gguy.freeMemory();
+        use_power.disposeButton();
+        pause_menu.disposeButton();
+        if(music.isPlaying())music.stop();
         music.dispose();
         for(WalkPlatform obstaculo : walkPlats){
             obstaculo.freeMemory();
