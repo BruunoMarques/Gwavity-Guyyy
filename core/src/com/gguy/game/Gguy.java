@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.gguy.game.estados.EstadoBase;
 import com.gguy.game.estados.EstadoMenu;
 import com.gguy.game.estados.EstadosManager;
@@ -12,12 +13,13 @@ import com.gguy.game.estados.EstadosManager;
 public class Gguy extends ApplicationAdapter {
     private EstadosManager estadosJogo;
 	SpriteBatch batch;
+    public static  Matrix4 defaultMatrix;
 //	Texture img;
-
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+        defaultMatrix = batch.getProjectionMatrix();
         Gdx.gl.glClearColor(1, 0, 0, 1);
         //img = new Texture("badlogic.jpg");
         estadosJogo = new EstadosManager();

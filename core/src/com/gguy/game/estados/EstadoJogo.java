@@ -10,12 +10,14 @@ import com.gguy.game.estados.ferramentas.Botao;
 import com.gguy.game.gamestuff.Guy;
 import com.gguy.game.gamestuff.obstaculos.WalkPlatform;
 
+import java.util.Random;
+
 /**
  * Created by Jonas on 01-05-2016.
  */
 public class EstadoJogo extends EstadoBase {
     private Guy gguy;
-
+    private SpriteBatch video_mem;
     private Botao pause_menu;
     private Botao use_power;
 
@@ -39,15 +41,16 @@ public class EstadoJogo extends EstadoBase {
         super(emg);
         wallpapper = new Texture("background/bck3.png");
         playMusic();
-        gguy = new Guy(emg.skinSelected ,50,HEIGHT/4+100);
+        gguy = new Guy(emg.skinSelected ,50,HEIGHT/2);
+
+        pause_menu = new Botao("background/backbutton.png",WIDTH/2-75,HEIGHT-75); //todo placeholder wtf ta buggado
+        use_power = new Botao("background/powerbutton.png",WIDTH/2+150,HEIGHT);
 
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
 
-        pause_menu = new Botao("background/backbutton.png",WIDTH/2-50,HEIGHT-50); //todo placeholder
-        use_power = new Botao("background/powerbutton.png",WIDTH/2+150,HEIGHT);
-        pause_menu.setCoordView(0,HEIGHT*3/4 - 50);
-        use_power.setCoordView(200,HEIGHT*3/4 - 50);
+        pause_menu.setViewPoint(0,HEIGHT*3/4 - 50);
+        use_power.setViewPoint(200,HEIGHT*3/4 - 50);
 
 
         walkPlats = new Array<WalkPlatform>();
@@ -67,8 +70,8 @@ public class EstadoJogo extends EstadoBase {
         String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + y1;
         banana.info(cenas);
 
-        if(yg <= y1) return y1+1;
-        else if (yg >= y2) return y2-1;
+        if(yg <= y1) return y1+5;
+        else if (yg >= y2) return y2-5;
         else return yg;
 
 
@@ -78,9 +81,6 @@ public class EstadoJogo extends EstadoBase {
     protected void handleInput() {
 
         if(Gdx.input.justTouched() && pause_menu.checkClick(Gdx.input.getX(),Gdx.input.getY())){
-            camara.setToOrtho(true, WIDTH, HEIGHT);
-            camara.position.x = 0;
-            camara.position.y = 0;
             emg.remEstadoAct();
             emg.addEstado(new EstadoMenu(emg));
         }
@@ -96,6 +96,10 @@ public class EstadoJogo extends EstadoBase {
 
     @Override
     public void update(float dt) {
+        if(!music.isPlaying()){
+            music.dispose();
+            playMusic();
+        }
         handleInput();
         gguy.updatePos(dt);
         timePassed += dt;
@@ -107,7 +111,10 @@ public class EstadoJogo extends EstadoBase {
 
         for(WalkPlatform obstaculo : walkPlats){
             if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH)
-                obstaculo.reposition(obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH*nObstaculos);
+            {
+                Random r = new Random();
+                if(r.nextInt(4) != 2 ) obstaculo.reposition(obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH*nObstaculos);
+            }
             if(obstaculo.ColideGuy(gguy.getColisaoBox())){
                 gguy.atingeChao(); //todo isto está buggy!!
                 currentStepping = obstaculo;
@@ -117,10 +124,6 @@ public class EstadoJogo extends EstadoBase {
             }
         }
         camara.update();
-        if(!music.isPlaying()){
-            music.dispose();
-            playMusic();
-        }
     }
 
     @Override
@@ -150,7 +153,6 @@ public class EstadoJogo extends EstadoBase {
         gguy.freeMemory();
         use_power.disposeButton();
         pause_menu.disposeButton();
-        if(music.isPlaying())music.stop();
         music.dispose();
         for(WalkPlatform obstaculo : walkPlats){
             obstaculo.freeMemory();

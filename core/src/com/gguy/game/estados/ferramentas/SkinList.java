@@ -14,7 +14,7 @@ public class SkinList {
         skins.add(new SkinInfo("sonic",8,4));
         skins.add(new SkinInfo("pikachu",4,4));
         skins.add(new SkinInfo("datboi",5,4));
-        currentlySelected = skins.get(2);
+        currentlySelected = skins.get(1);
     }
 
     public SkinInfo getSelectedSkin(){

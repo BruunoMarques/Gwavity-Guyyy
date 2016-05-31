@@ -35,7 +35,7 @@ public class Botao {
         return coordView;
     }
 
-    public void setCoordView(float x, float y){
+    public void setViewPoint(float x, float y){
         coordView.set(x,y);
     }
 

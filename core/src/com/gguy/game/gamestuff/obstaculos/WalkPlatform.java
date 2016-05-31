@@ -40,8 +40,8 @@ public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa
     public void reposition(float x){
         partCima.x = x;
         partBaixo.x = x;
-        colisaoCima.setPosition(partCima.x,partCima.y);
-        colisaoBaixo.setPosition(partBaixo.x,partBaixo.y);
+        colisaoCima.setPosition(partCima);
+        colisaoBaixo.setPosition(partBaixo);
     }
 
     public boolean ColideGuy(Rectangle player){
