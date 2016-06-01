@@ -4,16 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
 import com.gguy.game.estados.ferramentas.Botao;
 import com.gguy.game.gamestuff.Guy;
-import com.gguy.game.gamestuff.MapGenerator;
-import com.gguy.game.gamestuff.obstaculos.MapStruct;
 import com.gguy.game.gamestuff.obstaculos.WalkPlatform;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -27,13 +23,10 @@ public class EstadoJogo extends EstadoBase {
 
     private float timePassed = 0;
     private float speed = 200; //todo mudar dp, isto e temp
-
-    private MapGenerator geradorMapa;
-    private ArrayList<MapStruct> world;
-    //todo resolver os todos e apagá-los quando os resolver para nao ter a salganhada como aqui em baixo
-    //todo ongoing changes, pls bear with me
-    private MapStruct currentStepping;//todo fazer isto dp, estou a curtir James Blake
-
+    private int nObstaculos = 6;
+   // private Array<Muro> obstaculos;
+    private Array<WalkPlatform> walkPlats;
+    private WalkPlatform currentStepping;//todo fazer isto dp, estou a curtir James Blake
     private final static String TAG = "infoMessage";
 
     private void playMusic(){
@@ -59,23 +52,18 @@ public class EstadoJogo extends EstadoBase {
         pause_menu.setViewPoint(0,HEIGHT*3/4 - 50);
         use_power.setViewPoint(200,HEIGHT*3/4 - 50);
 
-        geradorMapa = new MapGenerator();
-        world = geradorMapa.initializeMap();
 
-/* todo parte de criar
         walkPlats = new Array<WalkPlatform>();
         for(int i = 0;i< nObstaculos;i++){
             walkPlats.add(new WalkPlatform(0));
             walkPlats.get(i).reposition(i*walkPlats.get(i).PLATF_WIDTH);
-            world = geradorMapa.generateMap(walkPlats.get(i).getPartCima().x + EstadoBase.WIDTH/2);
         }
-*/
+
     }
 
     private float getColisionLimit(){
-    //todo hardcoded might crash please change
-        float y1 = currentStepping.getCoordenadas().get(1).y + gguy.getColisaoBox().getHeight();
-        float y2 = currentStepping.getCoordenadas().get(0).y - currentStepping.getTextura().getHeight();
+        float y1 = currentStepping.getPartBaixo().y + gguy.getColisaoBox().getHeight();
+        float y2 = currentStepping.getPartCima().y - currentStepping.getPlatf().getHeight();
         float yg = gguy.getPosicao().y;
 
         Logger banana = new Logger(TAG,Logger.INFO);
@@ -85,6 +73,8 @@ public class EstadoJogo extends EstadoBase {
         if(yg <= y1) return y1+5;
         else if (yg >= y2) return y2-5;
         else return yg;
+
+
     }
 
     @Override
@@ -119,25 +109,7 @@ public class EstadoJogo extends EstadoBase {
         use_power.changeViewPosX(use_power.getCoordView().x + (speed * dt));
         pause_menu.changeViewPosX(pause_menu.getCoordView().x + (speed * dt));
 
-        for(int i = 0;i<world.size();i++) {
-            MapStruct obstaculo = world.get(i);
-            if (obstaculo.ColideGuy(gguy.getColisaoBox())) {
-                gguy.atingeChao(); //todo isto está buggy!!
-                currentStepping = obstaculo;
-            }
-            int Width = obstaculo.getTextura().getWidth();
-            double coord = obstaculo.getCoordenadas().get(0).x;
-            if (camara.position.x - (camara.viewportWidth / 2) > coord + Width) {
-                world = geradorMapa.generateMap();
-                i--;
-            }
-        }
-
-        /*
         for(WalkPlatform obstaculo : walkPlats){
-            if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH){
-                world = geradorMapa.generateMap(obstaculo.getPartCima().x + EstadoBase.WIDTH/2);
-            }
             if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH)
             {
                 Random r = new Random();
@@ -151,12 +123,11 @@ public class EstadoJogo extends EstadoBase {
             //    banana.info(cenas);
             }
         }
-        */
         camara.update();
     }
 
     @Override
-    public void render(SpriteBatch spriteB){
+    public void render(SpriteBatch spriteB) {
         spriteB.setProjectionMatrix(camara.combined);
         spriteB.begin();
 
@@ -167,17 +138,12 @@ public class EstadoJogo extends EstadoBase {
         if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
-        /*
+
         for(WalkPlatform obstaculo : walkPlats){
             spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartCima().x,obstaculo.getPartCima().y);
             spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartBaixo().x,obstaculo.getPartBaixo().y);
         }
-        */
-        for(MapStruct mapa : world){
-            for(int i = 0;i<mapa.getCoordenadas().size();i++){
-               spriteB.draw(mapa.getTextura(),mapa.getCoordenadas().get(i).x,mapa.getCoordenadas().get(i).y);
-            }
-        }
+
         spriteB.end();
     }
 
@@ -188,11 +154,8 @@ public class EstadoJogo extends EstadoBase {
         use_power.disposeButton();
         pause_menu.disposeButton();
         music.dispose();
-        geradorMapa.disposeMap();
-        /*
         for(WalkPlatform obstaculo : walkPlats){
             obstaculo.freeMemory();
         }
-        */
     }
 }

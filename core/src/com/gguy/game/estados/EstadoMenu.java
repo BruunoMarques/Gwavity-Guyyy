@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Logger;
 import com.gguy.game.Gguy;
+import com.gguy.game.Online.ComClient;
+import com.gguy.game.Online.ComServer;
 import com.gguy.game.estados.ferramentas.Botao;
 
 /**
@@ -18,6 +20,8 @@ public class EstadoMenu extends EstadoBase {
     //private Texture btn1;
     private Botao btn1;
     private Botao btn2;
+    private Botao btn3;
+    private Botao btn4;
     private boolean alteracaoEstado;
     private final static String TAG = "infoMessage";
     public EstadoMenu(EstadosManager emg) {
@@ -25,6 +29,8 @@ public class EstadoMenu extends EstadoBase {
         wallpapper = new Texture("background/wallpaper1.png"); //todo fazer defines disto para ficar bonito
         btn1 = new Botao("background/singleplayer.png",200,200);
         btn2 = new Botao("background/options.png",500,200);
+        btn3 = new Botao("background/singleplayer.png",200,500);
+        btn4 = new Botao("background/options.png",500,500);
 
         alteracaoEstado = true;
 
@@ -46,6 +52,14 @@ public class EstadoMenu extends EstadoBase {
             //emg.remEstadoAct();
             emg.addEstado(new EstadoOpcoes(emg));
             //banana.info("Finito Main Menu");
+        }
+        if(Gdx.input.justTouched() && btn3.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+            banana.info("Servidor");
+            ComServer.mainServer();
+        }
+        if(Gdx.input.justTouched() && btn4.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+            banana.info("Cliente");
+            ComClient.mainClient();
         }
     }
 
@@ -69,6 +83,8 @@ public class EstadoMenu extends EstadoBase {
         spriteB.draw(wallpapper,0,0,WIDTH,HEIGHT);
         spriteB.draw(btn1.getButton(),btn1.getCoord().x,btn1.getCoord().y);
         spriteB.draw(btn2.getButton(),btn2.getCoord().x,btn2.getCoord().y);
+        spriteB.draw(btn3.getButton(),btn3.getCoord().x,btn3.getCoord().y);
+        spriteB.draw(btn4.getButton(),btn4.getCoord().x,btn4.getCoord().y);
         spriteB.end();
     }
 

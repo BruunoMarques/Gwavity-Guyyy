@@ -3,6 +3,7 @@ package com.gguy.game.gamestuff.obstaculos;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.gguy.game.estados.EstadoBase;
 
 import java.util.Random;
 
@@ -19,14 +20,14 @@ public class Muro extends MapStruct{
         super(x);
         temp = new Texture("map/obst.png");//como e repetido poderia ser estatico
         rand = new Random();
-        obsCima = new Vector2(x, rand.nextInt(130) + 100 + 120);
+        obsCima = new Vector2(x, rand.nextInt(75) + EstadoBase.HEIGHT/2);
         obsBaixo = new Vector2(x, obsCima.y - 100 - temp.getHeight());
 
         colisaoCima = new Rectangle(obsCima.x,obsCima.y,temp.getWidth(),temp.getHeight());
         colisaoBaixo = new Rectangle(obsBaixo.x,obsBaixo.y,temp.getWidth(),temp.getHeight());
         Colisionbox.add(colisaoBaixo);
         Colisionbox.add(colisaoCima);
-        Texturas.add(temp);
+        Textura = temp;
         Coordenadas.add(obsBaixo);
         Coordenadas.add(obsCima);
     }
@@ -43,14 +44,21 @@ public class Muro extends MapStruct{
         return obsBaixo;
     }
 
+    public boolean ColideGuy(Rectangle player){
+        return player.overlaps(colisaoCima) ||  player.overlaps(colisaoBaixo);
+    }
+
     public void freeMemory(){
         temp.dispose();
     }
 
     public void reposition(float x){
-        obsCima.set(x, rand.nextInt(130) + 100 + 120);
+        obsCima.set(x, rand.nextInt(75) + EstadoBase.HEIGHT/2);
         obsBaixo.set(x, obsCima.y - 100 - temp.getHeight());
         colisaoBaixo.setPosition(obsBaixo);
         colisaoCima.setPosition(obsCima);
+    }
+    public Muro clone(){
+        return new Muro(0);
     }
 }

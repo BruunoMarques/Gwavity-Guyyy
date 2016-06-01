@@ -32,7 +32,7 @@ public class EstadosManager {
         estados.pop().freeMemory();
     }
 
-    public void updateEstado(float dt){
+    public void updateEstado(float dt) {
         estados.peek().update(dt);
     }
 

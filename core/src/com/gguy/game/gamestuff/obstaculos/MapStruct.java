@@ -9,11 +9,11 @@ import java.util.ArrayList;
 /**
  * Created by Jonas on 25-05-2016.
  */
-public abstract class MapStruct {
+public abstract class MapStruct implements Cloneable{
 
     protected ArrayList<Rectangle> Colisionbox;
     protected ArrayList<Vector2> Coordenadas;
-    protected ArrayList<Texture> Texturas;
+    protected Texture Textura;
 
     public ArrayList<Rectangle> getColisionbox() {
         return Colisionbox;
@@ -31,21 +31,20 @@ public abstract class MapStruct {
         Coordenadas = coordenadas;
     }
 
-    public ArrayList<Texture> getTexturas() {
-        return Texturas;
+    public Texture getTextura() {
+        return Textura;
     }
 
-    public void setTexturas(ArrayList<Texture> texturas) {
-        Texturas = texturas;
+    public void setTextura(Texture textura) {
+        this.Textura = textura;
     }
     public abstract void reposition(float x);
-
+    public abstract boolean ColideGuy(Rectangle player);
+    public abstract MapStruct clone();
+    public abstract void freeMemory();
     public MapStruct(float x){
         //todo nothing lol
         Colisionbox = new ArrayList<Rectangle>();
-        Texturas = new ArrayList<Texture>();
         Coordenadas = new ArrayList<Vector2>();
     }
-
-
 }

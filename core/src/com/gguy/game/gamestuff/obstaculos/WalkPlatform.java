@@ -8,7 +8,7 @@ import com.gguy.game.estados.EstadoBase;
 /**
  * Created by Jonas on 02-05-2016.
  */
-public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa. Depurar isto
+public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo colisao qq coisa. Depurar isto. tá depurado
     private Texture platf;
     //eventualmente um random
     private Vector2 partCima, partBaixo;
@@ -16,6 +16,7 @@ public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa
     public final int PLATF_WIDTH;
 
     public WalkPlatform(float x){
+        super(x);
         partCima = new Vector2(x, EstadoBase.HEIGHT/2+75);
         partBaixo = new Vector2(x, EstadoBase.HEIGHT/4);
         platf = new Texture("map/walkplat.png");
@@ -23,6 +24,12 @@ public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa
 
         colisaoCima = new Rectangle(partCima.x,partCima.y,platf.getWidth(),platf.getHeight());
         colisaoBaixo = new Rectangle(partBaixo.x,partBaixo.y,platf.getWidth(),platf.getHeight());
+
+        Textura = platf;
+        Colisionbox.add(colisaoCima);
+        Coordenadas.add(partCima);
+        Colisionbox.add(colisaoBaixo);
+        Coordenadas.add(partBaixo);
     }
 
     public Texture getPlatf() {
@@ -50,5 +57,9 @@ public class WalkPlatform { //todo fazer class mae chamada tipo colisao qq coisa
 
     public void freeMemory(){
         platf.dispose();
+    }
+
+    public WalkPlatform clone(){
+        return new WalkPlatform(0);
     }
 }
