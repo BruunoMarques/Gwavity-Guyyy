@@ -26,13 +26,15 @@ public class EstadoJogo extends EstadoBase {
     private Botao use_power;
 
     private float timePassed = 0;
-    private float speed = 200; //todo mudar dp, isto e temp
+    private float speed = 400; //todo igualar ao valor do gguy,speed
 
     private MapGenerator geradorMapa;
     private ArrayList<MapStruct> world;
     //todo resolver os todos e apagá-los quando os resolver para nao ter a salganhada como aqui em baixo
     //todo ongoing changes, pls bear with me
-    private MapStruct currentStepping;//todo fazer isto dp, estou a curtir James Blake
+    private Rectangle currentStepping = new Rectangle(0,0,0,0);//todo fazer isto dp, estou a curtir James Blake
+    private Rectangle GuyFixed; //todo testing ...
+    private boolean colidiu = false; //todo testing...
 
     private final static String TAG = "infoMessage";
 
@@ -52,41 +54,45 @@ public class EstadoJogo extends EstadoBase {
 
         pause_menu = new Botao("background/backbutton.png",WIDTH/2-75,HEIGHT-75); //todo placeholder wtf ta buggado
         use_power = new Botao("background/powerbutton.png",WIDTH/2+150,HEIGHT);
+        pause_menu.setViewPoint((WIDTH/2-75)/2,HEIGHT*3/4 - 50); //todo still all fked up
+        use_power.setViewPoint(200,HEIGHT*3/4 - 50);
 
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
 
-        pause_menu.setViewPoint(0,HEIGHT*3/4 - 50);
-        use_power.setViewPoint(200,HEIGHT*3/4 - 50);
-
         geradorMapa = new MapGenerator();
         world = geradorMapa.initializeMap();
 
-/* todo parte de criar
-        walkPlats = new Array<WalkPlatform>();
-        for(int i = 0;i< nObstaculos;i++){
-            walkPlats.add(new WalkPlatform(0));
-            walkPlats.get(i).reposition(i*walkPlats.get(i).PLATF_WIDTH);
-            world = geradorMapa.generateMap(walkPlats.get(i).getPartCima().x + EstadoBase.WIDTH/2);
-        }
-*/
     }
 
+    /**
+     * Calcula a posicao do jogador para sair da colision box, de acordo com a orientaçao deste
+     * @return posicao fixed
+     */
     private float getColisionLimit(){
-    //todo hardcoded might crash please change
-        float y1 = currentStepping.getCoordenadas().get(1).y + gguy.getColisaoBox().getHeight();
-        float y2 = currentStepping.getCoordenadas().get(0).y - currentStepping.getTextura().getHeight();
-        float yg = gguy.getPosicao().y;
-
-        Logger banana = new Logger(TAG,Logger.INFO);
-        String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + y1;
-        banana.info(cenas);
-
-        if(yg <= y1) return y1+5;
-        else if (yg >= y2) return y2-5;
-        else return yg;
+        Rectangle test = new Rectangle();
+        test.set(gguy.getColisaoBox());
+        boolean colidiuBaixo = gguy.normalGravity();
+        float ret = 0;
+        while(test.overlaps(currentStepping)){
+            if(colidiuBaixo) ret--;
+            else ret++;
+            test.x += ret;
+        }
+        return ret+gguy.getPosicao().y;
     }
-
+    public boolean ColideGuyFrontal(Rectangle rect, int height){
+        GuyFixed = gguy.getColisaoBox(); //todo sofreu alteracoes, se for preciso reverter, substituir isto por gguy.getColisionBox();
+        GuyFixed.y = getColisionLimit();
+        if(!gguy.normalGravity())
+            if(!gguy.isGuyFlying() && GuyFixed.y-gguy.getColisaoBox().getHeight() <= rect.y)return true;
+            else return false;
+        else if(gguy.normalGravity()){
+            if(!gguy.isGuyFlying() && GuyFixed.y > rect.y-height &&
+                    GuyFixed.y- GuyFixed.getHeight() < rect.y)return false;
+        }
+        return false;
+    }
     @Override
     protected void handleInput() {
 
@@ -95,63 +101,78 @@ public class EstadoJogo extends EstadoBase {
             emg.addEstado(new EstadoMenu(emg));
         }
         else if(Gdx.input.justTouched() && !gguy.isGuyFlying()){
-            Logger banana = new Logger(TAG,Logger.INFO);
-            String cenas = "pos_click" + Gdx.input.getX() + ":" + Gdx.input.getY();
-            banana.info(cenas);
             gguy.fixPosY(getColisionLimit());
             gguy.changeGravity();
             gguy.playJumpSound();
         }
     }
+    public boolean updateMap(){
+        boolean needsChange = false;
+        boolean noGround = true;
+        boolean hitWall = false;
+        boolean isFlying = gguy.isGuyFlying();
+        for(int i = 0;i<world.size();i++) {
+            MapStruct obstaculo = world.get(i);
+ //           if(gguy.isGuyFlying()) {
+            if (obstaculo.ColideGuy(gguy.getColisaoBox())) { //todo cancer
+                if(ColideGuyFrontal(obstaculo.getLastColided(),obstaculo.getTextura().getHeight())){
+                    hitWall = true;
+                }
+                else {
+                    gguy.atingeChao(); //todo acho que ja nao tá buggy!! nvm ta buggy q fode
+                  /*  if(isFlying != gguy.isGuyFlying()){
+                        GuyFixed = gguy.getColisaoBox();
+                        GuyFixed.y = getColisionLimit();
+                    }*/
+                    currentStepping = obstaculo.getLastColided();
+                    noGround = false;
+                }
+            }
+//            int Width = obstaculo.getTextura().getWidth();
+//            double coord = obstaculo.getCoordenadas().get(0).x;
+            if (camara.position.x - (camara.viewportWidth / 2) > geradorMapa.smallestDistance) {
+                needsChange = true;
+            }
+        }
+        if(needsChange){
+            world = geradorMapa.generateMap();
+        }
 
+        if(noGround && !gguy.isGuyFlying()){
+            gguy.changeGravity();
+            gguy.changeGravity();
+        }
+
+        return hitWall;
+    }
     @Override
     public void update(float dt) {
         if(!music.isPlaying()){
             music.dispose();
             playMusic();
         }
+        /* kinda works
+        if(!camara.frustum.pointInFrustum(gguy.getPosicao().x,gguy.getPosicao().y,camara.position.z)){
+            emg.remEstadoAct();
+            emg.addEstado(new EstadoMenu(emg));
+        }
+        */
+        //condicao para ver se acontece fim de jogo
+        if(gguy.getPosicao().y > camara.position.y + camara.viewportHeight/2 ||
+                gguy.getPosicao().y + gguy.getColisaoBox().getHeight() <  camara.position.y - camara.viewportHeight/2 ||
+                gguy.getPosicao().x + gguy.getColisaoBox().getWidth() < camara.position.x - camara.viewportWidth/2){
+            emg.remEstadoAct();
+            emg.addEstado(new EstadoMenu(emg)); //todo add menu fim de jogo
+        }
         handleInput();
-        gguy.updatePos(dt);
+        gguy.updatePos(dt,colidiu);
         timePassed += dt;
-        camara.position.x = gguy.getPosicao().x;
-
+        camara.position.x += speed * dt;
         speed += dt;
         use_power.changeViewPosX(use_power.getCoordView().x + (speed * dt));
         pause_menu.changeViewPosX(pause_menu.getCoordView().x + (speed * dt));
-
-        for(int i = 0;i<world.size();i++) {
-            MapStruct obstaculo = world.get(i);
-            if (obstaculo.ColideGuy(gguy.getColisaoBox())) {
-                gguy.atingeChao(); //todo isto está buggy!!
-                currentStepping = obstaculo;
-            }
-            int Width = obstaculo.getTextura().getWidth();
-            double coord = obstaculo.getCoordenadas().get(0).x;
-            if (camara.position.x - (camara.viewportWidth / 2) > coord + Width) {
-                world = geradorMapa.generateMap();
-                i--;
-            }
-        }
-
-        /*
-        for(WalkPlatform obstaculo : walkPlats){
-            if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH){
-                world = geradorMapa.generateMap(obstaculo.getPartCima().x + EstadoBase.WIDTH/2);
-            }
-            if(camara.position.x - (camara.viewportWidth/2) > obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH)
-            {
-                Random r = new Random();
-                if(r.nextInt(4) != 2 ) obstaculo.reposition(obstaculo.getPartCima().x + obstaculo.PLATF_WIDTH*nObstaculos);
-            }
-            if(obstaculo.ColideGuy(gguy.getColisaoBox())){
-                gguy.atingeChao(); //todo isto está buggy!!
-                currentStepping = obstaculo;
-            //    Logger banana = new Logger(TAG,Logger.INFO);
-            //    String cenas = "colidiu " + gguy.getColisaoBox().y + " com " + obstaculo.getPartBaixo().y;
-            //    banana.info(cenas);
-            }
-        }
-        */
+      //  gguy.updatePos(dt);
+        colidiu = updateMap();//todo por no fim antes do camara.update maybe
         camara.update();
     }
 
@@ -167,15 +188,10 @@ public class EstadoJogo extends EstadoBase {
         if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
-        /*
-        for(WalkPlatform obstaculo : walkPlats){
-            spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartCima().x,obstaculo.getPartCima().y);
-            spriteB.draw(obstaculo.getPlatf(),obstaculo.getPartBaixo().x,obstaculo.getPartBaixo().y);
-        }
-        */
+
         for(MapStruct mapa : world){
-            for(int i = 0;i<mapa.getCoordenadas().size();i++){
-               spriteB.draw(mapa.getTextura(),mapa.getCoordenadas().get(i).x,mapa.getCoordenadas().get(i).y);
+            for(int i = 0;i<mapa.getColisionbox().size();i++){
+               spriteB.draw(mapa.getTextura(),mapa.getColisionbox().get(i).x,mapa.getColisionbox().get(i).y);
             }
         }
         spriteB.end();
@@ -189,10 +205,5 @@ public class EstadoJogo extends EstadoBase {
         pause_menu.disposeButton();
         music.dispose();
         geradorMapa.disposeMap();
-        /*
-        for(WalkPlatform obstaculo : walkPlats){
-            obstaculo.freeMemory();
-        }
-        */
     }
 }

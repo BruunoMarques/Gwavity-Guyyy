@@ -26,23 +26,20 @@ public class Guy {
     private Texture jumpTexture;
     private Texture walkTexture;
     private Texture inverseWalkTexture;
-    //private Texture flyTexture;
-    //private Animation idleAnimation;
+
     private Animation jumpAnimation;
     private Animation walkAnimation;
     private Animation inverseWalkAnimation;
-    //private Animation flyAnimation;
 
     private Sound jumpS;
     private Sound catch_powerS; //todo cenas do power
     private Sound deathS;
 
-    private boolean hasFlyingAnim;
     private boolean isUpsideDown;
     private boolean isFlying;
     private Rectangle colisao;
 
-    private float vel = 200; //todo mudar para 100
+    private float vel = 400; //todo mudar para 100
     //todo something related to superpowers
 
     public void defaultSkin(){
@@ -93,16 +90,15 @@ public class Guy {
         anim = new MyAnim(region,walkframes,1/20f);
         inverseWalkAnimation = anim.getSimpleAnimation();
     }
+
     //todo era uma vez um fdp que perdeu-se num puto dum sitio todo fdd, e decidiu andar a correr de um lado para o outro só por que lhe deu na mona. Esse gajo chama-se guy pq era mt ofensivo chamar-lhe fdp.
     public Guy(SkinInfo skin, int x, int y){
         posicao = new Vector2(x,y);
-        speed = new Vector2(0,0);
+        speed = new Vector2(vel,0);
         buySkin(skin.getName(), skin.getRunningFrames(), skin.getJumpingFrames());
-        colisao = new Rectangle(x,y,walkTexture.getWidth(),walkTexture.getHeight());
-        hasFlyingAnim = true;
+        colisao = new Rectangle(x+walkTexture.getWidth()/4,y,walkTexture.getWidth()/4,walkTexture.getHeight());
         isUpsideDown = false;
         isFlying = true;
-        //colisao = new Rectangle(x,y,player.getWidth(),player.getHeight());//todo introduzir isto esquecime o q este todo queria dizer
     }
 
     public void changeGravity(){
@@ -121,17 +117,19 @@ public class Guy {
     public boolean isGuyFlying(){
         return isFlying;
     }
-    public void updatePos(float dt){//todo isto esta em testes. Speed varia conforme o jogador nao bate, fazer para returnar o normal se bater frontalmente
+    public void updatePos(float dt,boolean colidiu){//todo isto esta em testes. Speed varia conforme o jogador nao bate, fazer para returnar o normal se bater frontalmente
         if(isFlying){
             speed.y = isUpsideDown ? 200 : -200;
+            speed.x += dt;
             speed.scl(dt);
-            vel += dt;
-            posicao.add(vel * dt,speed.y);
+            if(colidiu)posicao.add(0,speed.y);
+            else posicao.add(speed.x ,speed.y);
             speed.scl(1/dt);// ou speed.y * dt ?!?!
         }
         else {
-            vel += dt;
-            posicao.add(vel * dt,0);
+            speed.x += dt*2;
+            if(colidiu)posicao.add(0,0);
+            else posicao.add(speed.x * dt,0);
         }
 
         colisao.setPosition(posicao.x,posicao.y);
@@ -140,23 +138,7 @@ public class Guy {
     public Vector2 getPosicao() {
         return posicao;
     }
-    /* //todo lol
-    public Texture getSkin() {
-        return player;
-    }
 
-    public Texture getWalkTexture() {
-        return walkTexture;
-    }
-
-    public Texture getJumpTexture() {
-        return jumpTexture;
-    }
-
-    public Texture getInverseWalkTexture(){
-        return inverseWalkTexture;
-    }
-    */
     public Animation getJumpAnimation(){
         return jumpAnimation;
     }

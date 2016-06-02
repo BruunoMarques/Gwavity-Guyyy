@@ -3,6 +3,7 @@ package com.gguy.game.gamestuff.obstaculos;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Logger;
 import com.gguy.game.estados.EstadoBase;
 
 /**
@@ -14,6 +15,7 @@ public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo
     private Vector2 partCima, partBaixo;
     private Rectangle colisaoCima, colisaoBaixo;
     public final int PLATF_WIDTH;
+    private final static String TAG = "infoMessage";
 
     public WalkPlatform(float x){
         super(x);
@@ -52,7 +54,20 @@ public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo
     }
 
     public boolean ColideGuy(Rectangle player){
-        return player.overlaps(colisaoCima) ||  player.overlaps(colisaoBaixo);
+        if(player.overlaps(colisaoCima))
+        {
+            Logger banana = new Logger(TAG,Logger.INFO);
+            String cenas = "ola" + player.y + "adeus" + (colisaoCima.y-platf.getHeight());
+            banana.info(cenas);
+            lastColided = colisaoCima;
+            return true;
+        }
+        if(player.overlaps(colisaoBaixo))
+        {
+            lastColided = colisaoBaixo;
+            return true;
+        }
+        return false;
     }
 
     public void freeMemory(){

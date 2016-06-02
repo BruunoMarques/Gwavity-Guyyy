@@ -14,30 +14,24 @@ public abstract class MapStruct implements Cloneable{
     protected ArrayList<Rectangle> Colisionbox;
     protected ArrayList<Vector2> Coordenadas;
     protected Texture Textura;
+    protected Rectangle lastColided;
+
+    public Rectangle getLastColided(){
+      return lastColided;
+    }
 
     public ArrayList<Rectangle> getColisionbox() {
         return Colisionbox;
-    }
-
-    public void setColisionbox(ArrayList<Rectangle> colisionbox) {
-        Colisionbox = colisionbox;
     }
 
     public ArrayList<Vector2> getCoordenadas() {
         return Coordenadas;
     }
 
-    public void setCoordenadas(ArrayList<Vector2> coordenadas) {
-        Coordenadas = coordenadas;
-    }
-
     public Texture getTextura() {
         return Textura;
     }
 
-    public void setTextura(Texture textura) {
-        this.Textura = textura;
-    }
     public abstract void reposition(float x);
     public abstract boolean ColideGuy(Rectangle player);
     public abstract MapStruct clone();

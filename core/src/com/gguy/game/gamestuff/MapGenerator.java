@@ -20,6 +20,7 @@ public class MapGenerator {
     public int smallestDistance;
     public int longestDistance;
 
+
     public MapGenerator(){
         EstruturasARandomizar = new ArrayList<MapStruct>();
         RandomMap = new ArrayList<MapStruct>();
@@ -40,29 +41,65 @@ public class MapGenerator {
         }
         return RandomMap;
     }
-    public ArrayList<MapStruct> generateMap(){
-        int compare = smallestDistance; //valor de x mais baixo
-        for(int i = 0;i<RandomMap.size();i++){
+
+    public void randomType1(int compare, int i){
+        if(RandomMap.get(i) instanceof WalkPlatform)
+        {
             MapStruct lol =(MapStruct) EstruturasARandomizar.get(1).clone();
             int temp = RandomMap.get(i).getTextura().getWidth();
-            double coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;
-            if(coordenadaX < compare) //todo ponderar se é necessario msm comparar aquilo
+            double coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;//todo fazer um metodo para ter o furthest x ?
+            if(coordenadaX < compare ) //todo ponderar se é necessario msm comparar aquilo
             {
                 RandomMap.get(i).freeMemory();
                 RandomMap.remove(i);
-                lol.reposition(longestDistance);
-                longestDistance += temp;
+                if(random.nextInt(5) != 4){
+                    lol.reposition(longestDistance);
+                }
                 RandomMap.add(lol);
+                longestDistance += temp;
+
             }
             else if(coordenadaX != smallestDistance && smallestDistance == compare)
-            {
                 smallestDistance = (int)coordenadaX;
-            }
+
             else{
                 if(smallestDistance > coordenadaX)
                     smallestDistance = (int)coordenadaX;
             }
-
+        }
+    }
+    public boolean randomType2(int compare, int i){
+        boolean existe = false;
+        if(RandomMap.get(i) instanceof Muro){
+            existe = true;
+            MapStruct lol =(MapStruct) EstruturasARandomizar.get(0).clone();
+            double coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;
+            if(coordenadaX < compare){
+                RandomMap.get(i).freeMemory();
+                RandomMap.remove(i);
+                if(random.nextInt(5) != 4){
+                    lol.reposition(longestDistance);
+                }
+                RandomMap.add(lol);
+            }
+        }
+        return existe;
+    }
+    public ArrayList<MapStruct> generateMap(){
+        int compare = smallestDistance; //valor de x mais baixo
+        boolean naoExisteMuros = true;
+        for(int i = 0;i<RandomMap.size();i++){
+            randomType1(compare, i);
+            if(randomType2(compare, i))naoExisteMuros = false;
+        }
+        if(naoExisteMuros){
+            int n_muros = 0; //todo oh snap
+            do{
+                MapStruct lol =(MapStruct) EstruturasARandomizar.get(0).clone();
+                lol.reposition(longestDistance+n_muros*smallestDistance);
+                RandomMap.add(lol);
+                n_muros++;
+            }while(random.nextInt(10) == 1);
         }
         return RandomMap;
     }

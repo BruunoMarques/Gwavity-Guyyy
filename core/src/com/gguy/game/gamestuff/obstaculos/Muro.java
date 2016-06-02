@@ -20,8 +20,8 @@ public class Muro extends MapStruct{
         super(x);
         temp = new Texture("map/obst.png");//como e repetido poderia ser estatico
         rand = new Random();
-        obsCima = new Vector2(x, rand.nextInt(75) + EstadoBase.HEIGHT/2);
-        obsBaixo = new Vector2(x, obsCima.y - 100 - temp.getHeight());
+        obsCima = new Vector2(x, /*rand.nextInt(75)*/ EstadoBase.HEIGHT/2);
+        obsBaixo = new Vector2(x, obsCima.y - 50 - temp.getHeight());//todo hardcoded maman
 
         colisaoCima = new Rectangle(obsCima.x,obsCima.y,temp.getWidth(),temp.getHeight());
         colisaoBaixo = new Rectangle(obsBaixo.x,obsBaixo.y,temp.getWidth(),temp.getHeight());
@@ -45,7 +45,17 @@ public class Muro extends MapStruct{
     }
 
     public boolean ColideGuy(Rectangle player){
-        return player.overlaps(colisaoCima) ||  player.overlaps(colisaoBaixo);
+        if(player.overlaps(colisaoCima))
+        {
+            lastColided = colisaoCima;
+            return true;
+        }
+        if(player.overlaps(colisaoBaixo))
+        {
+            lastColided = colisaoBaixo;
+            return true;
+        }
+        return false;
     }
 
     public void freeMemory(){
@@ -53,8 +63,8 @@ public class Muro extends MapStruct{
     }
 
     public void reposition(float x){
-        obsCima.set(x, rand.nextInt(75) + EstadoBase.HEIGHT/2);
-        obsBaixo.set(x, obsCima.y - 100 - temp.getHeight());
+        obsCima.x = x;
+        obsBaixo.x = x;
         colisaoBaixo.setPosition(obsBaixo);
         colisaoCima.setPosition(obsCima);
     }

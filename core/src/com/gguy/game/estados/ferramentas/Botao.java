@@ -45,7 +45,7 @@ public class Botao {
 
     public boolean checkClick(float x, float y){
         double graphical_y = EstadoBase.HEIGHT - y - height; // fazer isto uma vez que o eixo positivo Y do click começa em cima, oposto ao do render.
-        if(x > Math.abs(coord.x) && x < Math.abs(coord.x + width)
+        if(x > Math.abs(coord.x) && x < Math.abs(coord.x + width) //verificar se o click está dentro das boundaries do botao
                 && graphical_y < Math.abs(coord.y) && graphical_y > Math.abs(coord.y - height))
             return true;
         else return false;
