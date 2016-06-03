@@ -5,12 +5,16 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.sun.glass.ui.View;
 
 /**
  * Created by Jonas on 30-04-2016.
  */
 public abstract class EstadoBase {
     protected OrthographicCamera camara;
+    protected Viewport viewport;
     protected Vector3 rato; //Wtf rato?
     protected EstadosManager emg;
     protected Texture wallpapper; //todo isto é temp
@@ -18,11 +22,14 @@ public abstract class EstadoBase {
     public static int WIDTH;
     public static int HEIGHT;
     static{
-        WIDTH = 1280;
-        HEIGHT = 720;
+        WIDTH = 1920;
+        HEIGHT = 1080;
+       // WIDTH = 1280;
+       // HEIGHT = 720;
     }
     protected EstadoBase(EstadosManager emg){
         camara = new OrthographicCamera();
+        viewport = new StretchViewport(WIDTH,HEIGHT,camara);
         rato = new Vector3();
         this.emg = emg;
     }

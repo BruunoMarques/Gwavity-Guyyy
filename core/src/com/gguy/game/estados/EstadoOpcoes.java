@@ -1,6 +1,7 @@
 package com.gguy.game.estados;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,7 +18,7 @@ import com.gguy.game.estados.ferramentas.MySlider;
 public class EstadoOpcoes extends EstadoBase {
 
     private Botao btn1;
-    private Slider slider;
+    //private Slider slider;
     private MySlider slider2;
     private Texture skinSelected;
     private final static String TAG = "infoMessage";
@@ -25,8 +26,8 @@ public class EstadoOpcoes extends EstadoBase {
     public EstadoOpcoes(EstadosManager emg) {
         super(emg);
         wallpapper = new Texture("background/wallpaper1.png"); //todo fazer defines disto para ficar bonito
-        btn1 = new Botao("background/options.png",200,200);
-        Skin bananas = new Skin();
+        btn1 = new Botao("background/options.png",5,HEIGHT/2);
+      /*  Skin bananas = new Skin();
         bananas.add("knob", new Texture("map/obst.png"));
         bananas.add("bgs", new Texture("map/walkplat.png"));
 
@@ -35,9 +36,9 @@ public class EstadoOpcoes extends EstadoBase {
         style.knob = bananas.getDrawable("knob");
 
         slider = new Slider(0,2,100,false,style);
-        slider.setVisible(true);
+        slider.setVisible(true);*/
 
-        slider2 = new MySlider(3,700,300);
+        slider2 = new MySlider(emg.skins.getSkins().size(),WIDTH/2,HEIGHT/2-HEIGHT/12);
         skinSelected = new Texture(emg.skinSelected.getName()+"/"+emg.skinSelected.getName()+".png");
     }
 
@@ -69,13 +70,13 @@ public class EstadoOpcoes extends EstadoBase {
 
     @Override
     public void render(SpriteBatch spriteB) {
+   //     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         spriteB.begin();
         spriteB.draw(wallpapper,0,0,WIDTH,HEIGHT);
         spriteB.draw(btn1.getButton(),btn1.getCoord().x,btn1.getCoord().y);
         spriteB.draw(slider2.getKnob(),slider2.getCoordKnob().x,slider2.getCoordKnob().y);
         spriteB.draw(slider2.getLine(),slider2.getCoords().x,slider2.getCoords().y);
-        spriteB.draw(skinSelected,900,300);
-        //slider.draw(spriteB,1);
+        spriteB.draw(skinSelected,WIDTH/2+10+slider2.getLine().getWidth(),HEIGHT/2-HEIGHT/12);
         spriteB.end();
     }
 

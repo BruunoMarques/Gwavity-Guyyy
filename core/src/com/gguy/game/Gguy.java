@@ -13,26 +13,20 @@ import com.gguy.game.estados.EstadosManager;
 public class Gguy extends ApplicationAdapter {
     private EstadosManager estadosJogo;
 	SpriteBatch batch;
-    public static  Matrix4 defaultMatrix;
-//	Texture img;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-        defaultMatrix = batch.getProjectionMatrix();
-        Gdx.gl.glClearColor(1, 0, 0, 1);
-        //img = new Texture("badlogic.jpg");
+    //    Gdx.gl.glClearColor(1, 0, 0, 1);
         estadosJogo = new EstadosManager();
         estadosJogo.addEstado(new EstadoMenu(estadosJogo));
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);//refresh screen
 	}
 
 	@Override
 	public void render () {
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);//refresh screen
+	//	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);//refresh screen
         estadosJogo.updateEstado(Gdx.graphics.getDeltaTime());
         estadosJogo.renderEstado(batch);
-//		batch.begin();
-//		batch.draw(img, 0, 0);
-//		batch.end();
 	}
 }

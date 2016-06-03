@@ -27,8 +27,8 @@ public class EstadoMenu extends EstadoBase {
     public EstadoMenu(EstadosManager emg) {
         super(emg);
         wallpapper = new Texture("background/wallpaper1.png"); //todo fazer defines disto para ficar bonito
-        btn1 = new Botao("background/singleplayer.png",200,200);
-        btn2 = new Botao("background/options.png",500,200);
+        btn1 = new Botao("background/singleplayer.png",HEIGHT/2-HEIGHT/12);
+        btn2 = new Botao("background/options.png",HEIGHT/2-HEIGHT/4);
         btn3 = new Botao("background/singleplayer.png",200,500);
         btn4 = new Botao("background/options.png",500,500);
 
@@ -70,6 +70,8 @@ public class EstadoMenu extends EstadoBase {
 
     @Override
     public void render(SpriteBatch spriteB) {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        //repor a posicao da sprite para a inicial (util visto que o jogo muda o campo de visao)
         if(alteracaoEstado){
             //para dar fix da camara pq isto e estupido
             camara.setToOrtho(false,WIDTH,HEIGHT);
@@ -93,6 +95,8 @@ public class EstadoMenu extends EstadoBase {
         wallpapper.dispose();
         btn1.disposeButton();
         btn2.disposeButton();
+        btn3.disposeButton();
+        btn4.disposeButton();
         music.dispose();
     }
 

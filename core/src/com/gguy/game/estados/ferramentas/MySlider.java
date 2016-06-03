@@ -20,8 +20,8 @@ public class MySlider {
         this.nOptions = nOptions;
         coord = new Vector2(x,y);
         coordKnob = new Vector2(x,y);
-        line = new Texture("map/walkplat.png");
-        knob = new Texture("map/obst.png");
+        line = new Texture("background/slider_line.png");
+        knob = new Texture("background/slider_knob.png");
         width = line.getWidth();
         isPressed = false;
     }

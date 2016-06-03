@@ -22,7 +22,6 @@ public class PlayList {
         playlist.add("dafunk.mp3");
        //playlist.add("kendrick.mp3");
         playlist.add("resonance.mp3");
-        playlist.add("highwaytohell.mp3");
         playlist.add("kong.mp3");
     }
     void addMusic(String name){

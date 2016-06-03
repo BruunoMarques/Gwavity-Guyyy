@@ -39,7 +39,7 @@ public class Guy {
     private boolean isFlying;
     private Rectangle colisao;
 
-    private float vel = 400; //todo mudar para 100
+    private float vel = 100; //todo mudar para 100
     //todo something related to superpowers
 
     public void defaultSkin(){
@@ -53,6 +53,7 @@ public class Guy {
         walkTexture = new Texture(walkT);
         inverseWalkTexture = new Texture(iwalkT);
         jumpS = Gdx.audio.newSound(Gdx.files.internal("sounds/jump.wav"));//todo mudar endereco
+        deathS = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));//todo mudar endereco
     }
 
     public void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho. Requere correr freeMemory antes para mudar a skin
@@ -70,6 +71,7 @@ public class Guy {
             walkTexture = new Texture(walkT);
             inverseWalkTexture = new Texture(iwalkT);
             jumpS = Gdx.audio.newSound(Gdx.files.internal("sounds/" + skin + "/jump.wav"));
+            deathS = Gdx.audio.newSound(Gdx.files.internal("sounds/" + skin + "/death.wav"));
         }
         catch(GdxRuntimeException e){
             errText.error(e.getMessage());
@@ -96,7 +98,7 @@ public class Guy {
         posicao = new Vector2(x,y);
         speed = new Vector2(vel,0);
         buySkin(skin.getName(), skin.getRunningFrames(), skin.getJumpingFrames());
-        colisao = new Rectangle(x+walkTexture.getWidth()/4,y,walkTexture.getWidth()/4,walkTexture.getHeight());
+        colisao = new Rectangle(x+walkTexture.getWidth()/skin.getRunningFrames(),y,walkTexture.getWidth()/skin.getRunningFrames(),walkTexture.getHeight());
         isUpsideDown = false;
         isFlying = true;
     }
@@ -139,6 +141,10 @@ public class Guy {
         return posicao;
     }
 
+    public Vector2 getSpeed(){
+        return speed;
+    }
+
     public Animation getJumpAnimation(){
         return jumpAnimation;
     }
@@ -159,8 +165,13 @@ public class Guy {
         jumpS.play();
     }
 
+    public void playDeathSound(){
+        deathS.play();
+    }
+
     public void fixPosY(float y){
         posicao.y = y;
+        colisao.y = y;
     }
 
     public void freeMemory(){
@@ -169,6 +180,7 @@ public class Guy {
         walkTexture.dispose();
         inverseWalkTexture.dispose();
         jumpS.dispose();
+        deathS.dispose();
     }
 
 }

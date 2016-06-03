@@ -52,9 +52,10 @@ public class MapGenerator {
             {
                 RandomMap.get(i).freeMemory();
                 RandomMap.remove(i);
+
                 if(random.nextInt(5) != 4){
                     lol.reposition(longestDistance);
-                }
+                }else lol.reposition(longestDistance);
                 RandomMap.add(lol);
                 longestDistance += temp;
 
@@ -96,7 +97,7 @@ public class MapGenerator {
             int n_muros = 0; //todo oh snap
             do{
                 MapStruct lol =(MapStruct) EstruturasARandomizar.get(0).clone();
-                lol.reposition(longestDistance+n_muros*smallestDistance);
+                lol.reposition(longestDistance+n_muros*smallestDistance-400);
                 RandomMap.add(lol);
                 n_muros++;
             }while(random.nextInt(10) == 1);

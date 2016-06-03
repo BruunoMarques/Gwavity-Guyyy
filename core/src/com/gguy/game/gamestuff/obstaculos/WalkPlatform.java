@@ -56,9 +56,6 @@ public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo
     public boolean ColideGuy(Rectangle player){
         if(player.overlaps(colisaoCima))
         {
-            Logger banana = new Logger(TAG,Logger.INFO);
-            String cenas = "ola" + player.y + "adeus" + (colisaoCima.y-platf.getHeight());
-            banana.info(cenas);
             lastColided = colisaoCima;
             return true;
         }

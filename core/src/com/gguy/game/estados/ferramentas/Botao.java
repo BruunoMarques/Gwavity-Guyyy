@@ -22,6 +22,14 @@ public class Botao {
         width = button.getWidth();
         height = button.getHeight();
     }
+    public Botao(String tex, float y){
+        button = new Texture(tex);
+        float pos_meio = EstadoBase.WIDTH/2-button.getWidth()/2;
+        coord = new Vector2(pos_meio,y);
+        coordView = new Vector2(pos_meio,y);
+        width = button.getWidth();
+        height = button.getHeight();
+    }
 
     public Texture getButton(){
         return button;
@@ -41,6 +49,13 @@ public class Botao {
 
     public void changeViewPosX(float x){
         coordView.x = x;
+    }
+
+
+
+    public void duplicateButtonSize(){
+        width *=2;
+        height*=2;
     }
 
     public boolean checkClick(float x, float y){

@@ -1,10 +1,13 @@
 package com.gguy.game.estados;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
 import com.gguy.game.estados.ferramentas.Botao;
@@ -26,14 +29,14 @@ public class EstadoJogo extends EstadoBase {
     private Botao use_power;
 
     private float timePassed = 0;
-    private float speed = 400; //todo igualar ao valor do gguy,speed
+    private float speed = 100; //todo igualar ao valor do gguy,speed
 
     private MapGenerator geradorMapa;
     private ArrayList<MapStruct> world;
     //todo resolver os todos e apagá-los quando os resolver para nao ter a salganhada como aqui em baixo
     //todo ongoing changes, pls bear with me
     private Rectangle currentStepping = new Rectangle(0,0,0,0);//todo fazer isto dp, estou a curtir James Blake
-    private Rectangle GuyFixed; //todo testing ...
+    private int StateMachineWalking = 0;
     private boolean colidiu = false; //todo testing...
 
     private final static String TAG = "infoMessage";
@@ -50,11 +53,13 @@ public class EstadoJogo extends EstadoBase {
         super(emg);
         wallpapper = new Texture("background/bck3.png");
         playMusic();
-        gguy = new Guy(emg.skinSelected ,50,HEIGHT/2);
+        gguy = new Guy(emg.skinSelected ,150,HEIGHT/2);
 
-        pause_menu = new Botao("background/backbutton.png",WIDTH/2-75,HEIGHT-75); //todo placeholder wtf ta buggado
+       // pause_menu = new Botao("background/backbutton.png",WIDTH/2-75,HEIGHT-75); //todo placeholder wtf ta buggado
+        pause_menu = new Botao("background/backbutton.png",WIDTH/2-WIDTH/12,HEIGHT*3/4 + HEIGHT/8);
+        pause_menu.duplicateButtonSize();
         use_power = new Botao("background/powerbutton.png",WIDTH/2+150,HEIGHT);
-        pause_menu.setViewPoint((WIDTH/2-75)/2,HEIGHT*3/4 - 50); //todo still all fked up
+        pause_menu.setViewPoint((WIDTH/2-WIDTH/12)/2,HEIGHT*3/4 - HEIGHT/14); //todo still all fked up
         use_power.setViewPoint(200,HEIGHT*3/4 - 50);
 
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
@@ -77,21 +82,44 @@ public class EstadoJogo extends EstadoBase {
         while(test.overlaps(currentStepping)){
             if(colidiuBaixo) ret--;
             else ret++;
-            test.x += ret;
+            test.y += ret;
         }
-        return ret+gguy.getPosicao().y;
+        return test.y;
     }
-    public boolean ColideGuyFrontal(Rectangle rect, int height){
-        GuyFixed = gguy.getColisaoBox(); //todo sofreu alteracoes, se for preciso reverter, substituir isto por gguy.getColisionBox();
-        GuyFixed.y = getColisionLimit();
-        if(!gguy.normalGravity())
-            if(!gguy.isGuyFlying() && GuyFixed.y-gguy.getColisaoBox().getHeight() <= rect.y)return true;
-            else return false;
-        else if(gguy.normalGravity()){
-            if(!gguy.isGuyFlying() && GuyFixed.y > rect.y-height &&
-                    GuyFixed.y- GuyFixed.getHeight() < rect.y)return false;
+
+    private float getSizeVector(float x, float y){
+        return (float) Math.sqrt((double)(x*x + y*y));
+    }
+
+    /**
+     * Algoritmo a executar apos a deteçao de uma colisao.
+     * Este vai indicar se a colisao foi frontal, ou nao
+     * Breve explicacao: simula o movimento anterior do jogador, consoante a sua velocidade
+     * Depois obtenho a caixa no instante antes da colisao, e verifico se o x da frente do jogador é maior do que o da caixa
+     * se for, quer dizer que a colisao foi frontal.
+     * @param rect caixa de colisao a testar com o jogador
+     * @return true se for uma colisao frontal, falso se for uma colisao superior ou inferior
+     */
+    private boolean FrontalColision(Rectangle rect){
+        Rectangle test = new Rectangle();
+        test.set(gguy.getColisaoBox());
+        float size = getSizeVector(gguy.getSpeed().x,gguy.getSpeed().y);
+        float xInc = gguy.getSpeed().x/size; //
+        float yInc;
+        if(gguy.getSpeed().y == 0){ //not realy necessary, but oki xD
+            if(gguy.normalGravity()) yInc = 1;
+            else yInc = -1;
         }
-        return false;
+        else yInc = gguy.getSpeed().y/size;
+        while(test.overlaps(rect)){
+            test.y -= yInc;
+            test.x -= xInc;
+        }
+        if(test.x + test.getWidth() > rect.x) return false;
+/*        System.out.println("Posicoes Jogador" + test.x + ":" + test.y + " com " + test.getHeight() + " e " + test.getWidth());
+        System.out.println("Posicao Original" + gguy.getColisaoBox().x + ":" + gguy.getColisaoBox().y);
+        System.out.println("Posicoes Bloco" + rect.x + ":" + rect.y + " com " + rect.getHeight() + " e " + rect.getWidth());*/
+        return true;
     }
     @Override
     protected void handleInput() {
@@ -106,63 +134,61 @@ public class EstadoJogo extends EstadoBase {
             gguy.playJumpSound();
         }
     }
+
     public boolean updateMap(){
         boolean needsChange = false;
         boolean noGround = true;
         boolean hitWall = false;
-        boolean isFlying = gguy.isGuyFlying();
         for(int i = 0;i<world.size();i++) {
             MapStruct obstaculo = world.get(i);
- //           if(gguy.isGuyFlying()) {
             if (obstaculo.ColideGuy(gguy.getColisaoBox())) { //todo cancer
-                if(ColideGuyFrontal(obstaculo.getLastColided(),obstaculo.getTextura().getHeight())){
+                if(StateMachineWalking == 1 && currentStepping.y == obstaculo.getLastColided().y){
+                    noGround = false;
+                    currentStepping = obstaculo.getLastColided();
+                }
+                else if(FrontalColision(obstaculo.getLastColided())){
                     hitWall = true;
                 }
-                else {
-                    gguy.atingeChao(); //todo acho que ja nao tá buggy!! nvm ta buggy q fode
-                  /*  if(isFlying != gguy.isGuyFlying()){
-                        GuyFixed = gguy.getColisaoBox();
-                        GuyFixed.y = getColisionLimit();
-                    }*/
+                else{
+                    gguy.atingeChao();
+                    StateMachineWalking = 1;
                     currentStepping = obstaculo.getLastColided();
                     noGround = false;
                 }
             }
-//            int Width = obstaculo.getTextura().getWidth();
-//            double coord = obstaculo.getCoordenadas().get(0).x;
-            if (camara.position.x - (camara.viewportWidth / 2) > geradorMapa.smallestDistance) {
+            if (camara.position.x - (camara.viewportWidth / 2) > geradorMapa.smallestDistance) { //todo maybe this is wrong
                 needsChange = true;
             }
         }
         if(needsChange){
             world = geradorMapa.generateMap();
         }
-
         if(noGround && !gguy.isGuyFlying()){
             gguy.changeGravity();
             gguy.changeGravity();
         }
+        if(noGround) StateMachineWalking = 0;
 
         return hitWall;
     }
+
+    //condicao para ver se acontece fim de jogo
+    public boolean gameOver(){
+        return (gguy.getPosicao().y > camara.position.y + HEIGHT/4 ||
+                gguy.getPosicao().y + gguy.getColisaoBox().getHeight() <  camara.position.y - HEIGHT/4 ||
+                gguy.getPosicao().x + gguy.getColisaoBox().getWidth() < camara.position.x - WIDTH/4);
+    }
+
     @Override
     public void update(float dt) {
         if(!music.isPlaying()){
             music.dispose();
             playMusic();
         }
-        /* kinda works
-        if(!camara.frustum.pointInFrustum(gguy.getPosicao().x,gguy.getPosicao().y,camara.position.z)){
+        if(gameOver()){
+            gguy.playDeathSound();
             emg.remEstadoAct();
-            emg.addEstado(new EstadoMenu(emg));
-        }
-        */
-        //condicao para ver se acontece fim de jogo
-        if(gguy.getPosicao().y > camara.position.y + camara.viewportHeight/2 ||
-                gguy.getPosicao().y + gguy.getColisaoBox().getHeight() <  camara.position.y - camara.viewportHeight/2 ||
-                gguy.getPosicao().x + gguy.getColisaoBox().getWidth() < camara.position.x - camara.viewportWidth/2){
-            emg.remEstadoAct();
-            emg.addEstado(new EstadoMenu(emg)); //todo add menu fim de jogo
+            emg.addEstado(new EstadoMenu(emg)); //todo add menu fim de jogo e fazer entrar numa state machine, para nao acabar bruscamente?
         }
         handleInput();
         gguy.updatePos(dt,colidiu);
@@ -178,20 +204,21 @@ public class EstadoJogo extends EstadoBase {
 
     @Override
     public void render(SpriteBatch spriteB){
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         spriteB.setProjectionMatrix(camara.combined);
         spriteB.begin();
-
         spriteB.draw(wallpapper,camara.position.x - (camara.viewportWidth/2),camara.position.y - (camara.viewportHeight/2),WIDTH/2, HEIGHT/2);
         spriteB.draw(use_power.getButton(),use_power.getCoordView().x,use_power.getCoordView().y);
         spriteB.draw(pause_menu.getButton(),pause_menu.getCoordView().x,pause_menu.getCoordView().y);
 
+        spriteB.draw(use_power.getButton(),gguy.getColisaoBox().x,gguy.getColisaoBox().y,gguy.getColisaoBox().getWidth(),gguy.getColisaoBox().getHeight());
         if(gguy.isGuyFlying())spriteB.draw(gguy.getJumpAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else if(!gguy.normalGravity())spriteB.draw(gguy.getWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
         else spriteB.draw(gguy.getInverseWalkAnimation().getKeyFrame(timePassed, true),gguy.getPosicao().x,gguy.getPosicao().y);
 
         for(MapStruct mapa : world){
             for(int i = 0;i<mapa.getColisionbox().size();i++){
-               spriteB.draw(mapa.getTextura(),mapa.getColisionbox().get(i).x,mapa.getColisionbox().get(i).y);
+                spriteB.draw(mapa.getTextura(),mapa.getColisionbox().get(i).x,mapa.getColisionbox().get(i).y);
             }
         }
         spriteB.end();
