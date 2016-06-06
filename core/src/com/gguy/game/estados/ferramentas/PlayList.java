@@ -1,10 +1,13 @@
 package com.gguy.game.estados.ferramentas;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 
+
+
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Random;
+
+import javax.naming.Context;
 
 /**
  * Created by Jonas on 14-05-2016.
@@ -17,12 +20,20 @@ public class PlayList {
         playlist = new ArrayList<String>();
         removedlist = new ArrayList<String>();
         lastSong = new String();
-        //todo fazer isto automatico mb? Ou ter um ficheiro txt com o nome das musicas
-        playlist.add("crazyfrog.mp3");
-        playlist.add("dafunk.mp3");
-       //playlist.add("kendrick.mp3");
-        playlist.add("resonance.mp3");
+
+        /* //todo maybe later
+        FileHandle fh = new FileHandle("music"); //doesnt work in android because android's gay
+        FileHandle[] folder = fh.list();
+        for(FileHandle file : folder){
+            if(!file.isDirectory())
+                if(!file.name().equals("kendrick.mp3") && file.name().contains(".mp3"))
+                    playlist.add(file.name());
+        }
+        */
         playlist.add("kong.mp3");
+        playlist.add("resonance.mp3");
+        playlist.add("walk.mp3");
+        playlist.add("whistle.mp3");
     }
     void addMusic(String name){
         if(removedlist.contains(name)){

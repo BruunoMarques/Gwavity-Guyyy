@@ -11,6 +11,11 @@ public class MySlider {
     private Vector2 coord;
     private Vector2 coordKnob;
     private float width;
+    private float height;
+
+    private float width2;
+    private float height2;
+
     private int nOptions;
     private Texture line;
     private Texture knob;
@@ -20,9 +25,14 @@ public class MySlider {
         this.nOptions = nOptions;
         coord = new Vector2(x,y);
         coordKnob = new Vector2(x,y);
-        line = new Texture("background/slider_line.png");
-        knob = new Texture("background/slider_knob.png");
-        width = line.getWidth();
+        line = new Texture("utility/slider_line.png");
+        knob = new Texture("utility/slider_knob.png");
+        width = line.getWidth()*EstadoBase.W_RES;
+        height = knob.getHeight()*EstadoBase.H_RES;
+
+        width2 = knob.getWidth()*EstadoBase.W_RES;
+        height2 = line.getHeight()*EstadoBase.H_RES;
+
         isPressed = false;
     }
 
@@ -42,10 +52,26 @@ public class MySlider {
         return coordKnob;
     }
 
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public float getWidth2() {
+        return width2;
+    }
+
+    public float getHeight2() {
+        return height2;
+    }
+
     public boolean checkClick(float x, float y){
-        double graphical_y = EstadoBase.HEIGHT - y - knob.getHeight(); // fazer isto uma vez que o eixo positivo Y do click começa em cima, oposto ao do render.
-        if(x > Math.abs(coordKnob.x) && x < Math.abs(coordKnob.x + knob.getWidth())
-                && graphical_y < Math.abs(coordKnob.y) && graphical_y > Math.abs(coordKnob.y - knob.getHeight())){
+        double graphical_y = EstadoBase.HEIGHT - y - height; // fazer isto uma vez que o eixo positivo Y do click começa em cima, oposto ao do render.
+        if(x > Math.abs(coordKnob.x) && x < Math.abs(coordKnob.x + width2)
+                && graphical_y < Math.abs(coordKnob.y) && graphical_y > Math.abs(coordKnob.y - height)){
             isPressed = true;
             return true;
         }
@@ -57,8 +83,8 @@ public class MySlider {
 
     public void arrastaKnob(float x){
         if(isPressed){
-            if(x > (coord.x - knob.getWidth()/8) && x < (coord.x + line.getWidth() + knob.getWidth()/8))
-            coordKnob.x = x-(knob.getWidth()/2);
+            if(x > (coord.x - width2/8) && x < (coord.x + width + width2/8))
+            coordKnob.x = x-width2/2;
         }
     }
 

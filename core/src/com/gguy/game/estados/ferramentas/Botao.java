@@ -19,16 +19,18 @@ public class Botao {
         button = new Texture(tex);
         coord = new Vector2(x,y);
         coordView = new Vector2(x,y);
-        width = button.getWidth();
-        height = button.getHeight();
+        width = button.getWidth()*EstadoBase.W_RES;
+        height = button.getHeight()*EstadoBase.H_RES;
     }
+
+
     public Botao(String tex, float y){
         button = new Texture(tex);
-        float pos_meio = EstadoBase.WIDTH/2-button.getWidth()/2;
+        float pos_meio = EstadoBase.WIDTH/2- button.getWidth()*EstadoBase.W_RES;
         coord = new Vector2(pos_meio,y);
         coordView = new Vector2(pos_meio,y);
-        width = button.getWidth();
-        height = button.getHeight();
+        width = button.getWidth()*EstadoBase.W_RES;
+        height = button.getHeight()*EstadoBase.H_RES;
     }
 
     public Texture getButton(){
@@ -43,6 +45,14 @@ public class Botao {
         return coordView;
     }
 
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
     public void setViewPoint(float x, float y){
         coordView.set(x,y);
     }
@@ -50,7 +60,6 @@ public class Botao {
     public void changeViewPosX(float x){
         coordView.x = x;
     }
-
 
 
     public void duplicateButtonSize(){

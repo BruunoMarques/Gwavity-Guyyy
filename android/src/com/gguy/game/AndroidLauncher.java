@@ -1,5 +1,6 @@
 package com.gguy.game;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -11,6 +12,8 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.audio.*;
 import com.gguy.game.Gguy;
 import com.gguy.game.estados.EstadoBase;
+
+import java.io.FileOutputStream;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override

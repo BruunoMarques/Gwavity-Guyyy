@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
+import com.gguy.game.estados.EstadoBase;
 import com.gguy.game.estados.ferramentas.SkinInfo;
 import com.sun.prism.TextureMap;
 
@@ -39,12 +40,14 @@ public class Guy {
     private boolean isFlying;
     private Rectangle colisao;
 
-    private float vel = 100; //todo mudar para 100
-    //todo something related to superpowers
+    private float width;
+    private float height;
 
+    private boolean bonusActivated = true;
+    //por defeito é a skin do sonic
     public void defaultSkin(){
         String name, jumpT, walkT, iwalkT;
-        name = "sonic/sonic.png"; //todo dp por uma default
+        name = "sonic/sonic.png";
         jumpT = "sonic" + "/jump.png";
         walkT = "sonic" + "/walk.png";
         iwalkT = "sonic" + "/invwalk.png";
@@ -56,7 +59,7 @@ public class Guy {
         deathS = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));//todo mudar endereco
     }
 
-    public void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho. Requere correr freeMemory antes para mudar a skin
+    public void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho.
         //this.money -= money;
         String name, jumpT, walkT, iwalkT;
         name = skin + "/" + skin + ".png";
@@ -66,7 +69,7 @@ public class Guy {
 
         Logger errText = new Logger(TAG,Logger.ERROR);
         try {
-            player = new Texture(name);//todo era fixe criar uma base de dados de skins am i right?
+            player = new Texture(name);
             jumpTexture = new Texture(jumpT);
             walkTexture = new Texture(walkT);
             inverseWalkTexture = new Texture(iwalkT);
@@ -75,7 +78,7 @@ public class Guy {
         }
         catch(GdxRuntimeException e){
             errText.error(e.getMessage());
-            errText.error("Going to load default texture");//todo add smthing here?
+            errText.error("Going to load default texture");
             defaultSkin();
             walkframes = 8;
             jumpframes = 4;
@@ -93,12 +96,13 @@ public class Guy {
         inverseWalkAnimation = anim.getSimpleAnimation();
     }
 
-    //todo era uma vez um fdp que perdeu-se num puto dum sitio todo fdd, e decidiu andar a correr de um lado para o outro só por que lhe deu na mona. Esse gajo chama-se guy pq era mt ofensivo chamar-lhe fdp.
-    public Guy(SkinInfo skin, int x, int y){
+    public Guy(SkinInfo skin, int x, int y,float vel){
         posicao = new Vector2(x,y);
         speed = new Vector2(vel,0);
         buySkin(skin.getName(), skin.getRunningFrames(), skin.getJumpingFrames());
-        colisao = new Rectangle(x+walkTexture.getWidth()/skin.getRunningFrames(),y,walkTexture.getWidth()/skin.getRunningFrames(),walkTexture.getHeight());
+        width = walkTexture.getWidth() * EstadoBase.W_RES;
+        height = walkTexture.getHeight() * EstadoBase.H_RES;
+        colisao = new Rectangle(x+width/skin.getRunningFrames(),y,width/skin.getRunningFrames(),height);
         isUpsideDown = false;
         isFlying = true;
     }
@@ -119,7 +123,12 @@ public class Guy {
     public boolean isGuyFlying(){
         return isFlying;
     }
-    public void updatePos(float dt,boolean colidiu){//todo isto esta em testes. Speed varia conforme o jogador nao bate, fazer para returnar o normal se bater frontalmente
+
+    public void ignoreBonusAccel(){
+        bonusActivated = false;
+    }
+
+    public void updatePos(float dt,boolean colidiu){//todo falta limitar aceleracao
         if(isFlying){
             speed.y = isUpsideDown ? 200 : -200;
             speed.x += dt;
@@ -129,11 +138,12 @@ public class Guy {
             speed.scl(1/dt);// ou speed.y * dt ?!?!
         }
         else {
-            speed.x += dt*2;
+            if(bonusActivated) speed.x += dt*2;
+            else speed.x += dt;
             if(colidiu)posicao.add(0,0);
             else posicao.add(speed.x * dt,0);
         }
-
+        if(!bonusActivated) bonusActivated = true;
         colisao.setPosition(posicao.x,posicao.y);
     }
 
@@ -167,6 +177,18 @@ public class Guy {
 
     public void playDeathSound(){
         deathS.play();
+    }
+
+    public void setPosicao(Vector2 posicao) {
+        this.posicao = posicao;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public float getWidth() {
+        return width;
     }
 
     public void fixPosY(float y){

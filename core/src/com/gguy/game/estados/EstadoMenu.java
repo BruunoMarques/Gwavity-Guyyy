@@ -8,8 +8,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Logger;
 import com.gguy.game.Gguy;
-import com.gguy.game.Online.ComClient;
-import com.gguy.game.Online.ComServer;
 import com.gguy.game.estados.ferramentas.Botao;
 
 /**
@@ -18,6 +16,11 @@ import com.gguy.game.estados.ferramentas.Botao;
 public class EstadoMenu extends EstadoBase {
    // private Texture wallpapper;
     //private Texture btn1;
+    private final String nomeWallpaper = "background/wallpaper.png";
+    private final String SinglePlayer = "utility/singleplayer.png";
+    private final String Options = "utility/options.png";
+    private final String Host = "utility/singleplayer.png";
+    private final String Client = "utility/options.png";
     private Botao btn1;
     private Botao btn2;
     private Botao btn3;
@@ -26,17 +29,17 @@ public class EstadoMenu extends EstadoBase {
     private final static String TAG = "infoMessage";
     public EstadoMenu(EstadosManager emg) {
         super(emg);
-        wallpapper = new Texture("background/wallpaper1.png"); //todo fazer defines disto para ficar bonito
-        btn1 = new Botao("background/singleplayer.png",HEIGHT/2-HEIGHT/12);
-        btn2 = new Botao("background/options.png",HEIGHT/2-HEIGHT/4);
-        btn3 = new Botao("background/singleplayer.png",200,500);
-        btn4 = new Botao("background/options.png",500,500);
+        wallpapper = new Texture(nomeWallpaper);
+        btn1 = new Botao(SinglePlayer,WIDTH/16,HEIGHT/2-HEIGHT/16);
+        btn2 = new Botao(Options,WIDTH/16,HEIGHT/2-HEIGHT/4);
+        btn3 = new Botao(Host,WIDTH/2+WIDTH/5,HEIGHT/2-HEIGHT/16);
+        btn4 = new Botao(Client,WIDTH/2+WIDTH/5,HEIGHT/2-HEIGHT/4);
 
         alteracaoEstado = true;
 
         music = Gdx.audio.newMusic(Gdx.files.internal("music/kendrick.mp3"));
         music.setLooping(false);
-        music.setVolume(0.8f);
+        music.setVolume(this.emg.soundVolume);
         music.play();
     }
 
@@ -48,18 +51,20 @@ public class EstadoMenu extends EstadoBase {
             emg.addEstado(new EstadoJogo(emg));
             banana.info("Finito Main Menu");
         }
-        if(Gdx.input.justTouched() && btn2.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+        else if(Gdx.input.justTouched() && btn2.checkClick(Gdx.input.getX(),Gdx.input.getY())){
             //emg.remEstadoAct();
-            emg.addEstado(new EstadoOpcoes(emg));
+            emg.addEstado(new EstadoOpcoes(emg,music));
             //banana.info("Finito Main Menu");
         }
-        if(Gdx.input.justTouched() && btn3.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+        else if(Gdx.input.justTouched() && btn3.checkClick(Gdx.input.getX(),Gdx.input.getY())){
             banana.info("Servidor");
-            ComServer.mainServer();
+            emg.remEstadoAct();
+            emg.addEstado(new EstadoHost(emg));
         }
-        if(Gdx.input.justTouched() && btn4.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+        else if(Gdx.input.justTouched() && btn4.checkClick(Gdx.input.getX(),Gdx.input.getY())){
             banana.info("Cliente");
-            ComClient.mainClient();
+            emg.remEstadoAct();
+            emg.addEstado(new EstadoClient(emg));
         }
     }
 
@@ -83,10 +88,10 @@ public class EstadoMenu extends EstadoBase {
         }
         spriteB.begin();
         spriteB.draw(wallpapper,0,0,WIDTH,HEIGHT);
-        spriteB.draw(btn1.getButton(),btn1.getCoord().x,btn1.getCoord().y);
-        spriteB.draw(btn2.getButton(),btn2.getCoord().x,btn2.getCoord().y);
-        spriteB.draw(btn3.getButton(),btn3.getCoord().x,btn3.getCoord().y);
-        spriteB.draw(btn4.getButton(),btn4.getCoord().x,btn4.getCoord().y);
+        spriteB.draw(btn1.getButton(),btn1.getCoord().x,btn1.getCoord().y,btn1.getWidth(),btn1.getHeight());
+        spriteB.draw(btn2.getButton(),btn2.getCoord().x,btn2.getCoord().y,btn2.getWidth(),btn2.getHeight());
+        spriteB.draw(btn3.getButton(),btn3.getCoord().x,btn3.getCoord().y,btn3.getWidth(),btn3.getHeight());
+        spriteB.draw(btn4.getButton(),btn4.getCoord().x,btn4.getCoord().y,btn4.getWidth(),btn4.getHeight());
         spriteB.end();
     }
 

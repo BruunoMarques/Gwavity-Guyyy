@@ -14,7 +14,7 @@ public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo
     //eventualmente um random
     private Vector2 partCima, partBaixo;
     private Rectangle colisaoCima, colisaoBaixo;
-    public final int PLATF_WIDTH;
+    public final float PLATF_WIDTH;
     private final static String TAG = "infoMessage";
 
     public WalkPlatform(float x){
@@ -22,10 +22,10 @@ public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo
         partCima = new Vector2(x, EstadoBase.HEIGHT/2+75);
         partBaixo = new Vector2(x, EstadoBase.HEIGHT/4);
         platf = new Texture("map/walkplat.png");
-        PLATF_WIDTH = platf.getWidth();
+        PLATF_WIDTH = platf.getWidth()*EstadoBase.W_RES;
 
-        colisaoCima = new Rectangle(partCima.x,partCima.y,platf.getWidth(),platf.getHeight());
-        colisaoBaixo = new Rectangle(partBaixo.x,partBaixo.y,platf.getWidth(),platf.getHeight());
+        colisaoCima = new Rectangle(partCima.x,partCima.y,platf.getWidth()*EstadoBase.W_RES,platf.getHeight()*EstadoBase.H_RES);
+        colisaoBaixo = new Rectangle(partBaixo.x,partBaixo.y,platf.getWidth()*EstadoBase.W_RES,platf.getHeight()*EstadoBase.H_RES);
 
         Textura = platf;
         Colisionbox.add(colisaoCima);

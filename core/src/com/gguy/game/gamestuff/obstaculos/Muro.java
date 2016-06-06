@@ -23,8 +23,8 @@ public class Muro extends MapStruct{
         obsCima = new Vector2(x, /*rand.nextInt(75)*/ EstadoBase.HEIGHT/2);
         obsBaixo = new Vector2(x, obsCima.y - 50 - temp.getHeight());//todo hardcoded maman
 
-        colisaoCima = new Rectangle(obsCima.x,obsCima.y,temp.getWidth(),temp.getHeight());
-        colisaoBaixo = new Rectangle(obsBaixo.x,obsBaixo.y,temp.getWidth(),temp.getHeight());
+        colisaoCima = new Rectangle(obsCima.x,obsCima.y,temp.getWidth()*EstadoBase.W_RES,temp.getHeight()*EstadoBase.H_RES);
+        colisaoBaixo = new Rectangle(obsBaixo.x,obsBaixo.y,temp.getWidth()*EstadoBase.W_RES,temp.getHeight()*EstadoBase.H_RES);
         Colisionbox.add(colisaoBaixo);
         Colisionbox.add(colisaoCima);
         Textura = temp;

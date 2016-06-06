@@ -21,11 +21,18 @@ public abstract class EstadoBase {
     protected Music music;
     public static int WIDTH;
     public static int HEIGHT;
+    public static float H_RES;
+    public static float W_RES;
     static{
-        WIDTH = 1920;
-        HEIGHT = 1080;
-       // WIDTH = 1280;
-       // HEIGHT = 720;
+      //  WIDTH = 1920;
+      //  HEIGHT = 1080;
+        WIDTH = 1280;
+        HEIGHT = 720;
+      //  WIDTH = 800;
+      //  HEIGHT = 400;
+        W_RES = (float)WIDTH/1280;
+        H_RES = (float)HEIGHT/720;
+
     }
     protected EstadoBase(EstadosManager emg){
         camara = new OrthographicCamera();
@@ -36,9 +43,11 @@ public abstract class EstadoBase {
     protected abstract void handleInput();
     public abstract void update(float dt);// dt é a intervalo de tempo de render
     public abstract void render(SpriteBatch spriteB);
-    public abstract void freeMemory(); //dispose crap
+    public abstract void freeMemory(); //dispose everything that eats memory
     public static void setSize(int w, int h){
         WIDTH = w;
         HEIGHT = h;
+        W_RES = (float)WIDTH/1280;
+        H_RES = (float)HEIGHT/720;
     }
 }

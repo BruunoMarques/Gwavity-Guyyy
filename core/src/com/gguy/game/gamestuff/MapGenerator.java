@@ -17,8 +17,8 @@ public class MapGenerator {
     private ArrayList<MapStruct> EstruturasARandomizar;
     private ArrayList<MapStruct> RandomMap;
     private Random random;
-    public int smallestDistance;
-    public int longestDistance;
+    public float smallestDistance;
+    public float longestDistance;
 
 
     public MapGenerator(){
@@ -26,28 +26,28 @@ public class MapGenerator {
         RandomMap = new ArrayList<MapStruct>();
         random = new Random();
         longestDistance = 0;
-        smallestDistance = -200;
+        smallestDistance = -160*EstadoBase.W_RES;
         EstruturasARandomizar.add(new Muro(0));
         EstruturasARandomizar.add(new WalkPlatform(0));
     }
     public ArrayList<MapStruct> initializeMap(){ //todo hardcoding intensifies
-        MapStruct lol = (MapStruct) EstruturasARandomizar.get(1).clone();
-        int size = EstadoBase.HEIGHT/lol.getTextura().getWidth();
+        MapStruct lol;
+        //float size = EstadoBase.HEIGHT/(lol.getTextura().getWidth());
         for(int i = 0;i<8;i++){
             lol = (MapStruct) EstruturasARandomizar.get(1).clone();
-            lol.reposition(i*lol.getTextura().getWidth()+smallestDistance);
-            longestDistance = i * lol.getTextura().getWidth();
+            lol.reposition(i*lol.getTextura().getWidth()*EstadoBase.W_RES+smallestDistance);
+            longestDistance = i * lol.getTextura().getWidth()*EstadoBase.W_RES;
             RandomMap.add(lol);
         }
         return RandomMap;
     }
 
-    public void randomType1(int compare, int i){
+    public void randomType1(float compare, int i){
         if(RandomMap.get(i) instanceof WalkPlatform)
         {
             MapStruct lol =(MapStruct) EstruturasARandomizar.get(1).clone();
-            int temp = RandomMap.get(i).getTextura().getWidth();
-            double coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;//todo fazer um metodo para ter o furthest x ?
+            float temp = RandomMap.get(i).getTextura().getWidth()*EstadoBase.W_RES;
+            float coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;//todo fazer um metodo para ter o furthest x ?
             if(coordenadaX < compare ) //todo ponderar se é necessario msm comparar aquilo
             {
                 RandomMap.get(i).freeMemory();
@@ -55,7 +55,9 @@ public class MapGenerator {
 
                 if(random.nextInt(5) != 4){
                     lol.reposition(longestDistance);
-                }else lol.reposition(longestDistance);
+                }else {
+                    lol.reposition(0);
+                }
                 RandomMap.add(lol);
                 longestDistance += temp;
 
@@ -69,12 +71,12 @@ public class MapGenerator {
             }
         }
     }
-    public boolean randomType2(int compare, int i){
+    public boolean randomType2(float compare, int i){
         boolean existe = false;
         if(RandomMap.get(i) instanceof Muro){
             existe = true;
             MapStruct lol =(MapStruct) EstruturasARandomizar.get(0).clone();
-            double coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;
+            float coordenadaX = RandomMap.get(i).getCoordenadas().get(0).x;
             if(coordenadaX < compare){
                 RandomMap.get(i).freeMemory();
                 RandomMap.remove(i);
@@ -87,7 +89,7 @@ public class MapGenerator {
         return existe;
     }
     public ArrayList<MapStruct> generateMap(){
-        int compare = smallestDistance; //valor de x mais baixo
+        float compare = smallestDistance; //valor de x mais baixo
         boolean naoExisteMuros = true;
         for(int i = 0;i<RandomMap.size();i++){
             randomType1(compare, i);

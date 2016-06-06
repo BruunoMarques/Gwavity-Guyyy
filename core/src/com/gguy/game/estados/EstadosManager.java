@@ -16,6 +16,7 @@ public class EstadosManager {
     public SkinList skins;
     public SkinInfo skinSelected;
     public PlayList musicSelected;
+    public float soundVolume = 0.3f;
 
     public EstadosManager(){
         estados = new Stack<EstadoBase>();
