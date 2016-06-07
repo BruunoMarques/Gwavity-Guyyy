@@ -9,9 +9,9 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
-        config.width = EstadoBase.WIDTH;
+        config.width = EstadoBase.WIDTH; //ignora nao interessa
         config.height = EstadoBase.HEIGHT;
-
 		new LwjglApplication(new Gguy(), config);
+
 	}
 }

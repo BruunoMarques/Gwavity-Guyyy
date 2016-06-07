@@ -27,13 +27,15 @@ public class MyAnim { // pq nao percebi um corno da classe animacao
         maxFrameTime = time;
         currentFrameTime = 0;
     }
-
+/*nao e utilizado
     public MyAnim(Array<Texture> textures, float time){
         simpleFrames = textures;
         nFrames = simpleFrames.size;
         currentFrame =  0;
     }
 
+
+*/
     public void update(float dt){
         currentFrame += dt;
         if(currentFrameTime > maxFrameTime){

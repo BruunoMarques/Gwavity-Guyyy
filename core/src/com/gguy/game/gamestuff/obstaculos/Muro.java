@@ -20,7 +20,7 @@ public class Muro extends MapStruct{
         super(x);
         temp = new Texture("map/obst.png");//como e repetido poderia ser estatico
         rand = new Random();
-        obsCima = new Vector2(x, /*rand.nextInt(75)*/ EstadoBase.HEIGHT/2);
+        obsCima = new Vector2(x,EstadoBase.HEIGHT/2);
         obsBaixo = new Vector2(x, obsCima.y - 50 - temp.getHeight());//todo hardcoded maman
 
         colisaoCima = new Rectangle(obsCima.x,obsCima.y,temp.getWidth()*EstadoBase.W_RES,temp.getHeight()*EstadoBase.H_RES);
