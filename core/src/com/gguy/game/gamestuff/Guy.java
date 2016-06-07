@@ -42,10 +42,12 @@ public class Guy {
 
     private float width;
     private float height;
+    private int walkF;
+    private int jumpF;
 
     private boolean bonusActivated = true;
     //por defeito é a skin do sonic
-    public void defaultSkin(){
+    private void defaultSkin(){
         String name, jumpT, walkT, iwalkT;
         name = "sonic/sonic.png";
         jumpT = "sonic" + "/jump.png";
@@ -59,7 +61,7 @@ public class Guy {
         deathS = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));//todo mudar endereco
     }
 
-    public void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho.
+    private void loadSkin(String skin){
         //this.money -= money;
         String name, jumpT, walkT, iwalkT;
         name = skin + "/" + skin + ".png";
@@ -80,19 +82,27 @@ public class Guy {
             errText.error(e.getMessage());
             errText.error("Going to load default texture");
             defaultSkin();
-            walkframes = 8;
-            jumpframes = 4;
+            walkF = 8;
+            jumpF = 4;
         }
+    }
+
+    private void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho.
+        walkF = walkframes;
+        jumpF = jumpframes;
+        loadSkin(skin);
+
+        //criação das animacoes utilizando uma classe auxiliar
         TextureRegion region = new TextureRegion(jumpTexture);
-        MyAnim anim = new MyAnim(region,jumpframes,1/30f);
+        MyAnim anim = new MyAnim(region,jumpF,1/30f);
         jumpAnimation = anim.getSimpleAnimation();
 
         region = new TextureRegion(walkTexture);
-        anim = new MyAnim(region,walkframes,1/20f);
+        anim = new MyAnim(region,walkF,1/20f);
         walkAnimation = anim.getSimpleAnimation();
 
         region = new TextureRegion(inverseWalkTexture);
-        anim = new MyAnim(region,walkframes,1/20f);
+        anim = new MyAnim(region,walkF,1/20f);
         inverseWalkAnimation = anim.getSimpleAnimation();
     }
 
@@ -128,7 +138,7 @@ public class Guy {
         bonusActivated = false;
     }
 
-    public void updatePos(float dt,boolean colidiu){//todo falta limitar aceleracao
+    public void updatePos(float dt,boolean colidiu){
         if(isFlying){
             speed.y = isUpsideDown ? 200 : -200;
             speed.x += dt;
@@ -139,7 +149,7 @@ public class Guy {
         }
         else {
             if(bonusActivated) speed.x += dt*2;
-            else speed.x += dt;
+            else speed.x -= dt*0.5;
             if(colidiu)posicao.add(0,0);
             else posicao.add(speed.x * dt,0);
         }

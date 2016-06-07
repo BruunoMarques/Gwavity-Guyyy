@@ -29,7 +29,7 @@ public class EstadoJogo extends EstadoBase {
     private Botao use_power;
 
     private float timePassed = 0;
-    private final float speedInicial = 400;
+    private final float speedInicial = 600; //todo alterar isto x)
 
     private float speed = speedInicial;
     private final int pos_inicialX = 150;
@@ -61,12 +61,12 @@ public class EstadoJogo extends EstadoBase {
         playMusic();
         gguy = new Guy(emg.skinSelected ,pos_inicialX,pos_inicialY,speedInicial);
 
-        pause_menu = new Botao("utility/backbutton.png",WIDTH/2-WIDTH/12,HEIGHT*3/4 + HEIGHT/8);
+        pause_menu = new Botao("utility/backbutton.png",WIDTH/2+WIDTH/6,HEIGHT*3/4 + HEIGHT/8);
         pause_menu.duplicateButtonSize();
-        use_power = new Botao("utility/powerbutton.png",WIDTH/2+150,HEIGHT);
+        use_power = new Botao("utility/powerbutton.png",WIDTH/2-WIDTH/6,HEIGHT*3/4 + HEIGHT/8);
         use_power.duplicateButtonSize();
-        pause_menu.setViewPoint((WIDTH/2-WIDTH/12)/2,HEIGHT*3/4 - HEIGHT/14); //todo still all fked up
-        use_power.setViewPoint(200,HEIGHT*3/4 - 50);
+        pause_menu.setViewPoint((WIDTH/2+WIDTH/6)/2,HEIGHT*3/4 - HEIGHT/14);
+        use_power.setViewPoint((WIDTH/2-WIDTH/6)/2,HEIGHT*3/4 - HEIGHT/14);
 
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
@@ -82,8 +82,8 @@ public class EstadoJogo extends EstadoBase {
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
 
-        pause_menu.changeViewPosX((WIDTH/2-WIDTH/12)/2);
-        use_power.changeViewPosX(200);
+        pause_menu.changeViewPosX((WIDTH/2+WIDTH/6)/2);
+        use_power.changeViewPosX((WIDTH/2-WIDTH/6)/2);
 
         gguy.freeMemory();
         gguy = new Guy(emg.skinSelected ,150,HEIGHT/2,speedInicial);
@@ -146,9 +146,6 @@ public class EstadoJogo extends EstadoBase {
             test.x -= xInc;
         }
         if(test.x + test.getWidth() > rect.x) return false;
-/*        System.out.println("Posicoes Jogador" + test.x + ":" + test.y + " com " + test.getHeight() + " e " + test.getWidth());
-        System.out.println("Posicao Original" + gguy.getColisaoBox().x + ":" + gguy.getColisaoBox().y);
-        System.out.println("Posicoes Bloco" + rect.x + ":" + rect.y + " com " + rect.getHeight() + " e " + rect.getWidth());*/
         return true;
     }
     @Override
@@ -188,10 +185,13 @@ public class EstadoJogo extends EstadoBase {
             }
             if (camara.position.x - (camara.viewportWidth / 2) > geradorMapa.smallestDistance) { //todo maybe this is wrong
                 needsChange = true;
+                //world = geradorMapa.generateMap(speed);
             }
         }
         if(needsChange){
-            world = geradorMapa.generateMap();
+            Logger banana = new Logger(TAG,Logger.INFO); // works
+            banana.info("Gerador : " + geradorMapa.smallestDistance);
+            world = geradorMapa.generateMap(speed);
         }
         if(noGround && !gguy.isGuyFlying()){
             gguy.changeGravity();
@@ -221,11 +221,10 @@ public class EstadoJogo extends EstadoBase {
         }
         if(gameOver()){
             if(emg.soundVolume > 0.2f) gguy.playDeathSound();
-            //emg.remEstadoAct();
             emg.addEstado(new EstadoFimJogo(emg, this));
         }
         handleInput();
-        if(gguy.getPosicao().x > camara.position.x + WIDTH/6 )gguy.ignoreBonusAccel();
+        if(gguy.getPosicao().x > camara.position.x )gguy.ignoreBonusAccel();
         gguy.updatePos(dt,colidiu);
         timePassed += dt;
         camara.position.x += speed * dt;

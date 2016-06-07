@@ -5,4 +5,5 @@ package com.gguy.game.estados.ferramentas;
  */
 public class SomeResponse {
     public String text;
+    public int number;
 }

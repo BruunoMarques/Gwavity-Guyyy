@@ -2,6 +2,7 @@ package com.gguy.game.estados;
 
 //import com.gguy.game.Online.Comunicar;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
@@ -9,21 +10,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Logger;
-import com.esotericsoftware.kryonet.rmi.ObjectSpace;
-import com.gguy.game.Gguy;
 import com.gguy.game.estados.ferramentas.Botao;
+import com.gguy.game.estados.ferramentas.GuyPositions;
+import com.gguy.game.estados.ferramentas.MapWithoutTextures;
 import com.gguy.game.estados.ferramentas.Network;
-import com.gguy.game.estados.ferramentas.ScreenStuff;
 import com.gguy.game.estados.ferramentas.SkinInfo;
 import com.gguy.game.estados.ferramentas.SomeRequest;
 import com.gguy.game.estados.ferramentas.SomeResponse;
+import com.gguy.game.estados.ferramentas.WinningMessage;
 import com.gguy.game.gamestuff.Guy;
 import com.gguy.game.gamestuff.MapGenerator;
 import com.gguy.game.gamestuff.obstaculos.MapStruct;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 
 /**
@@ -35,41 +34,38 @@ public class EstadoHost extends EstadoBase {
     private final static String TAG = "infoMessage";
 
     //GERAR MAPA
-    private ObjectSpace objectSpace;
 
     private String ipAddress = new String("");
     private Server server;
     private int numPlayers = 0;
-    private ArrayList<String> typePlayers = new ArrayList<String>();
     private float timePassed = 0;
-    private final float speedInicial = 10;
+    private final float speedInicial = 201; //cause why not >:D
 
     private float speed = speedInicial;
     private final int pos_inicialX = 150;
     private final int pos_inicialY = HEIGHT/2;
-
+    //todo mutexes todo é opcional
     private MapGenerator geradorMapa;
     private ArrayList<MapStruct> world;
     private ArrayList<Guy> Players = new ArrayList<Guy>();
 
     private ArrayList<Rectangle> currentStepping = new ArrayList<Rectangle>();
-    private int StateMachineWalking = 0;
-    private boolean colidiu = false;
+    private ArrayList<Boolean> alive = new ArrayList<Boolean>();
 
+    private int StateMachineWalking = 0;
     private float flyingWidth = 0;
     private float flyingHeight = 0;
-    private String currentlySelectedSkin = "";
     private boolean addedPlayer = false;
     private boolean closeServer = false;
+
     public void initializeServer(){
         server = new Server(){
             protected  Connection newConnection(){
                 numPlayers++;
                 addedPlayer = true;
-                Random r = new Random();
                 ServerConnection sv = new ServerConnection();
-                flyingHeight = 50 * H_RES;
-                flyingWidth = 50 * W_RES;
+                flyingHeight = 45 * H_RES;
+                flyingWidth = 45 * W_RES;
                 return sv;
             }
         };
@@ -77,16 +73,22 @@ public class EstadoHost extends EstadoBase {
         server.addListener(new Listener(){
             public void received (Connection connection, Object object){
                 ServerConnection c = (ServerConnection)connection;
-
-
                 if(object instanceof SomeRequest){
                     SomeRequest request = (SomeRequest)object;
-                    System.out.println(request.text);
-                    currentlySelectedSkin = request.text;
 
                     SomeResponse response = new SomeResponse();
-                    response.text = "Received";
-                    connection.sendTCP(response);
+                    System.out.println(request.text);
+                    if(!request.text.equals("clicked"))
+                    {
+                        response.text = "success";
+                        response.number = Players.size() + 1;
+                        server.sendToAllTCP(response);
+                    }
+                    else {
+                        response.text = "Received";
+                        connection.sendTCP(response);
+                    }
+
                     System.out.println("" + c.name);
                     for(int i = 0; i< Players.size();i++){
                         if(c.name-1 == i && !Players.get(i).isGuyFlying()){
@@ -97,17 +99,14 @@ public class EstadoHost extends EstadoBase {
                 }
             }
             public void disconnected(Connection connection){
-                System.out.println("cenas");
+                System.out.println("player disconnected");
                 ServerConnection c = (ServerConnection) connection;
-                Players.remove(c.name-1);
-                if(Players.size() == 0 && speed != speedInicial){
-                    server.stop();
-                    closeServer = true;
-                }
+
+                server.stop();
+                closeServer = true;
+
             }
         });
-
-
 
         try{
             server.bind(Network.port,54777);
@@ -119,21 +118,46 @@ public class EstadoHost extends EstadoBase {
         server.start();
     }
 
-    class ServerConnection extends Connection {
+    class ServerConnection extends Connection{
         public int name = numPlayers;
+    }
+
+    public void restartServer(){
+        camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
+        camara.position.y = HEIGHT/2;
+
+        int size = Players.size();
+        for(int i = 0;i < size; i++) {
+            Players.get(0).freeMemory();
+            Players.remove(0);
+        }
+        for(int i = 0;i < size;i++) {
+            SkinInfo sk = emg.skins.getSkins().get(1);
+            Players.add(new Guy(sk, pos_inicialX, pos_inicialY, speedInicial));
+            currentStepping.set(i, new Rectangle(0, 0, 0, 0));
+            alive.set(i, true);
+        }
+
+        timePassed = 0;
+        speed = speedInicial;
+
+        StateMachineWalking = 0;
+
+        geradorMapa.disposeMap();
+        geradorMapa = new MapGenerator();
+        world = geradorMapa.initializeMap();
     }
 
     public EstadoHost(EstadosManager emg) {
         super(emg);
-        wallpapper = new Texture("background/wallpaper.png");
+        wallpapper = new Texture("background/bck2.png");
 
         //GERAR MAPA
         geradorMapa = new MapGenerator();
         world = geradorMapa.initializeMap();
         camara.setToOrtho(false, WIDTH/2, HEIGHT/2);
         camara.position.y = HEIGHT/2;
-
-
+        camara.update();
         initializeServer();
     }
 
@@ -175,16 +199,15 @@ public class EstadoHost extends EstadoBase {
 
     @Override
     protected void handleInput() {
-        Logger banana = new Logger(TAG,Logger.INFO); // works
-        String textMessage = "bananas";
-        if(Gdx.input.justTouched()) {
-        }
     }
 
     private boolean updateMap(int indice){
         boolean needsChange = false;
         boolean noGround = true;
         boolean hitWall = false;
+        MapWithoutTextures mt = new MapWithoutTextures();
+        mt.rectangles.clear();
+        mt.types.clear();
         for(int i = 0;i<world.size();i++) {
             MapStruct obstaculo = world.get(i);
             if (obstaculo.ColideGuy(Players.get(indice).getColisaoBox())) {
@@ -204,10 +227,16 @@ public class EstadoHost extends EstadoBase {
             }
             if (camara.position.x - (camara.viewportWidth / 2) > geradorMapa.smallestDistance) {
                 needsChange = true;
+                System.out.println(":O " + geradorMapa.smallestDistance);
             }
+            for(int j = 0;j<obstaculo.getColisionbox().size();j++){
+                mt.rectangles.add(obstaculo.getColisionbox().get(j));
+            }
+            server.sendToAllTCP(mt);
         }
         if(needsChange){
-            world = geradorMapa.generateMap();
+            System.out.println("bananas");
+            world = geradorMapa.generateMap(speed);
         }
         if(noGround && !Players.get(indice).isGuyFlying()){
             Players.get(indice).changeGravity();
@@ -218,28 +247,54 @@ public class EstadoHost extends EstadoBase {
         return hitWall;
     }
 
+    private boolean gameOver(Guy gguy){
+        return (gguy.getPosicao().y > camara.position.y + HEIGHT/4 ||
+                gguy.getPosicao().y + gguy.getColisaoBox().getHeight() <  camara.position.y - HEIGHT/4 ||
+                gguy.getPosicao().x + gguy.getColisaoBox().getWidth() < camara.position.x - WIDTH/4 );
+    }
+
     @Override
     public void update(float dt) {
         handleInput();
         if(addedPlayer){
-            Random r = new Random();
-            SkinInfo sk = emg.skins.getSkins().get(r.nextInt(emg.skins.getSkins().size()));
+            SkinInfo sk = emg.skins.getSkins().get(1);
             Players.add(new Guy(sk ,pos_inicialX,pos_inicialY,speedInicial));
             currentStepping.add(new Rectangle(0,0,0,0));
+            alive.add(true);
             addedPlayer = false;
         }
         if(Players.size() > 0){
+            ArrayList<Vector2> positions = new ArrayList<Vector2>();
+            GuyPositions guyPositions = new GuyPositions();
+            int over = 0; // numero de jogadores que morreram
+            int indice_vencedor = 0;
             for(int i = 0; i < Players.size(); i++){
-          /*  if(gguy.getPosicao().x > camara.position.x + WIDTH/6 )gguy.updatePos(dt,colidiu);
-            else gguy.updatePos(dt,colidiu);*/
-                Players.get(i).updatePos(dt,updateMap(i));
-                //todo Falta transferir informaçao de volta para desenhar para o cliente
-            }
+                Guy gguy = Players.get(i);
 
+                gguy.updatePos(dt,updateMap(i));
+                if(gguy.getPosicao().x > camara.position.x)gguy.ignoreBonusAccel();
+                positions.add(gguy.getPosicao());
+                alive.set(i,!gameOver(gguy));
+                if(!alive.get(i))over ++;
+                else indice_vencedor = i +1;
+                if(gguy.isGuyFlying())guyPositions.positions.add(1);
+                else if(gguy.normalGravity())guyPositions.positions.add(2);
+                else guyPositions.positions.add(0);
+            }
+            if(Players.size() <= over){
+                //acaba o jogo
+                WinningMessage win = new WinningMessage();
+                win.message = "Player " + indice_vencedor + " Won!";
+                server.sendToAllTCP(win);
+                restartServer();
+            }
+            server.sendToAllTCP(guyPositions);
+            server.sendToAllTCP(positions);
             timePassed += dt;
             camara.position.x += speed * dt;
             speed += dt;
             camara.update();
+            server.sendToAllTCP(camara.position);
 
         }
         if(closeServer){
@@ -268,7 +323,7 @@ public class EstadoHost extends EstadoBase {
 
         for(MapStruct mapa : world){
             for(int i = 0;i<mapa.getColisionbox().size();i++){
-                spriteB.draw(mapa.getTextura(),mapa.getColisionbox().get(i).x,mapa.getColisionbox().get(i).y);
+                spriteB.draw(mapa.getTextura(),mapa.getColisionbox().get(i).x,mapa.getColisionbox().get(i).y,mapa.getColisionbox().get(i).getWidth(),mapa.getColisionbox().get(i).getHeight());
             }
         }
         spriteB.end();

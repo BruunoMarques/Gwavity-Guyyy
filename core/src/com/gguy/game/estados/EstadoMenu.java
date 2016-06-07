@@ -19,12 +19,14 @@ public class EstadoMenu extends EstadoBase {
     private final String nomeWallpaper = "background/wallpaper.png";
     private final String SinglePlayer = "utility/singleplayer.png";
     private final String Options = "utility/options.png";
-    private final String Host = "utility/singleplayer.png";
-    private final String Client = "utility/options.png";
-    private Botao btn1;
-    private Botao btn2;
-    private Botao btn3;
-    private Botao btn4;
+    private final String Host = "utility/server.png";
+    private final String Client = "utility/client.png";
+    private final String Exit = "utility/exit.png";
+    private Botao btn1; //singleplayer
+    private Botao btn2; //opcoes
+    private Botao btn3; //servidor
+    private Botao btn4; //client
+    private Botao btn5; //exit
     private boolean alteracaoEstado;
     private final static String TAG = "infoMessage";
     public EstadoMenu(EstadosManager emg) {
@@ -34,6 +36,7 @@ public class EstadoMenu extends EstadoBase {
         btn2 = new Botao(Options,WIDTH/16,HEIGHT/2-HEIGHT/4);
         btn3 = new Botao(Host,WIDTH/2+WIDTH/5,HEIGHT/2-HEIGHT/16);
         btn4 = new Botao(Client,WIDTH/2+WIDTH/5,HEIGHT/2-HEIGHT/4);
+        btn5 = new Botao(Exit,WIDTH/2+WIDTH/3,HEIGHT/2+HEIGHT/4);
 
         alteracaoEstado = true;
 
@@ -44,7 +47,7 @@ public class EstadoMenu extends EstadoBase {
     }
 
     @Override
-    protected void handleInput() {//todo por coordenadas certas para os botoes :P
+    protected void handleInput() {
         Logger banana = new Logger(TAG,Logger.INFO); // works
         if(Gdx.input.justTouched() && btn1.checkClick(Gdx.input.getX(),Gdx.input.getY())){
             emg.remEstadoAct();
@@ -60,11 +63,15 @@ public class EstadoMenu extends EstadoBase {
             banana.info("Servidor");
             emg.remEstadoAct();
             emg.addEstado(new EstadoHost(emg));
+
         }
         else if(Gdx.input.justTouched() && btn4.checkClick(Gdx.input.getX(),Gdx.input.getY())){
             banana.info("Cliente");
             emg.remEstadoAct();
             emg.addEstado(new EstadoClient(emg));
+        }
+        else if(Gdx.input.justTouched() && btn5.checkClick(Gdx.input.getX(),Gdx.input.getY())){
+            Gdx.app.exit();
         }
     }
 
@@ -92,6 +99,7 @@ public class EstadoMenu extends EstadoBase {
         spriteB.draw(btn2.getButton(),btn2.getCoord().x,btn2.getCoord().y,btn2.getWidth(),btn2.getHeight());
         spriteB.draw(btn3.getButton(),btn3.getCoord().x,btn3.getCoord().y,btn3.getWidth(),btn3.getHeight());
         spriteB.draw(btn4.getButton(),btn4.getCoord().x,btn4.getCoord().y,btn4.getWidth(),btn4.getHeight());
+        spriteB.draw(btn5.getButton(),btn5.getCoord().x,btn5.getCoord().y,btn5.getWidth(),btn5.getHeight());
         spriteB.end();
     }
 
@@ -102,6 +110,7 @@ public class EstadoMenu extends EstadoBase {
         btn2.disposeButton();
         btn3.disposeButton();
         btn4.disposeButton();
+        btn5.disposeButton();
         music.dispose();
     }
 
