@@ -19,7 +19,7 @@ public class WalkPlatform extends MapStruct{ //todo fazer class mae chamada tipo
 
     public WalkPlatform(float x){
         super(x);
-        partCima = new Vector2(x, EstadoBase.HEIGHT/2+75);
+        partCima = new Vector2(x, (EstadoBase.HEIGHT/2+EstadoBase.HEIGHT/8));
         partBaixo = new Vector2(x, EstadoBase.HEIGHT/4);
         platf = new Texture("map/walkplat.png");
         PLATF_WIDTH = platf.getWidth()*EstadoBase.W_RES;

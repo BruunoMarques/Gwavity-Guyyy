@@ -11,10 +11,10 @@ import com.gguy.game.Gguy;
 import com.gguy.game.estados.ferramentas.Botao;
 
 /**
- * Created by Jonas on 30-04-2016.
+ * Classe para gerir o estado de menu
  */
 public class EstadoMenu extends EstadoBase {
-   // private Texture wallpapper;
+    //private Texture wallpapper;
     //private Texture btn1;
     private final String nomeWallpaper = "background/wallpaper.png";
     private final String SinglePlayer = "utility/singleplayer.png";
@@ -29,6 +29,12 @@ public class EstadoMenu extends EstadoBase {
     private Botao btn5; //exit
     private boolean alteracaoEstado;
     private final static String TAG = "infoMessage";
+	
+	/**
+     * Construtor de EstadoMenu.
+     * Inicializa o fundo, os botoes e a musica do estado
+     * @param emg EstadosManager a que o atual EstadoMenu esta associado
+     */
     public EstadoMenu(EstadosManager emg) {
         super(emg);
         wallpapper = new Texture(nomeWallpaper);
@@ -46,6 +52,12 @@ public class EstadoMenu extends EstadoBase {
         music.play();
     }
 
+	/**
+     * Processa o input do utilizador.
+     * Se houver click no botao de inicio de jogo, usa o EstadosManager associado para remover o estado atual e adicionar um EstadoJogo ao topo da pilha
+	 * Se houver click no botao de opcoes, usa o EstadosManager associado para remover o estado atual e adicionar um EstadoOpcoes ao topo da pilha
+     * Se houver click no botao de saida, sai da aplicacao
+	 */
     @Override
     protected void handleInput() {
         Logger banana = new Logger(TAG,Logger.INFO); // works
@@ -75,11 +87,19 @@ public class EstadoMenu extends EstadoBase {
         }
     }
 
+	/**
+     * Chama a funcao handleInput.
+     * @param dt intervalo de tempo entre atualizacoes
+     */
     @Override
     public void update(float dt) {
         handleInput();
     }
 
+	/**
+     * Desenha o estado no ecra. Isto inclui fundo e botoes
+     * @param spriteB
+     */
     @Override
     public void render(SpriteBatch spriteB) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -103,6 +123,9 @@ public class EstadoMenu extends EstadoBase {
         spriteB.end();
     }
 
+	/**
+	* Descarta memoria (fundo, botoes e musica)
+	*/
     @Override
     public void freeMemory() {
         wallpapper.dispose();

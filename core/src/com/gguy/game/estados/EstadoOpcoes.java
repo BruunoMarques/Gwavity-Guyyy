@@ -14,7 +14,7 @@ import com.gguy.game.estados.ferramentas.Botao;
 import com.gguy.game.estados.ferramentas.MySlider;
 
 /**
- * Created by Jonas on 14-05-2016.
+ * Classe responsavel pelo menu de opcoes.
  */
 public class EstadoOpcoes extends EstadoBase {
 
@@ -32,6 +32,13 @@ public class EstadoOpcoes extends EstadoBase {
     private final static String TAG = "infoMessage";
     private float sliderB_x;
     private float sliderB_y;
+	
+	 /**
+     * Construtor de EstadoOpcoes.
+     * Inicializa o fundo, a musica, o botao e os sliders
+     * @param emg EstadosManager a que o EstadoJogo esta associado
+     * @param music musica a reproduzir no menu
+     */
     public EstadoOpcoes(EstadosManager emg, Music music) {
         super(emg);
         wallpapper = new Texture(nomeWallpaper);
@@ -48,6 +55,11 @@ public class EstadoOpcoes extends EstadoBase {
         sliderB_y = slider2.getHeight() + slider2.getHeight()/8;
     }
 
+	/**
+     * Processa o input do utilizador.
+     * Se houve um click no botao, usa o EstadosManager atual para remover o estado corrente da pilha e adicionar um EstadoMenu
+     * Se acordo com a posicao selecionada nos sliders, atualiza a aparencia do jogador e o volume no EstadosManager atual
+     */
     @Override
     protected void handleInput() {
         Logger banana = new Logger(TAG,Logger.INFO); // works
@@ -76,11 +88,20 @@ public class EstadoOpcoes extends EstadoBase {
 
     }
 
+	/**
+     * Atualiza o estado. Isto é, chama uma funcao para processar o input do utilizador
+     * @param dt - tempo entre atualizacoes
+     */
     @Override
     public void update(float dt) {
         handleInput();
     }
 
+	/**
+     * Desenha o estado de jogo no ecra.
+     * Isto inclui o fundo, o botao, e os sliders
+     * @param spriteB
+     */
     @Override
     public void render(SpriteBatch spriteB) {
    //     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -100,6 +121,9 @@ public class EstadoOpcoes extends EstadoBase {
         spriteB.end();
     }
 
+	/**
+     * Descarta memoria (fundo, jogador, botoes, musica, o gerador de mapa)
+     */
     @Override
     public void freeMemory() {
         wallpapper.dispose();

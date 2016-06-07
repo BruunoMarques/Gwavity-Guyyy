@@ -27,6 +27,12 @@ import java.util.Random;
 
 /**
  * Created by Jonas on 30-04-2016.
+ * Classe responsavel por simular um client
+ * Esta e responsavel por:
+ * enviar ao servidor informacao de conneccao, e de que ocorre um click, quando este efetuar
+ * recebe do servidor informacao do jogo, como a posicao da camara e dos diversos jogadores, e do mapa criado pelo servidor
+ * O client basicamente e um receptor de informacao do servidor, sendo que toda a informacao que este da display provem do servidor
+ * Infelizmente, a funcao de pesquisa de ips do kryonet nao funciona para android, logo estamos a usar um ip hardcoded local
  */
 public class EstadoClient extends EstadoBase {
     // private Texture wallpapper;
@@ -46,6 +52,14 @@ public class EstadoClient extends EstadoBase {
     Client client;
     private int StateMachineConnection = 0; //0 = standbye, 1 = ligou, 2 = desconectou, 3 = espera de players
     private boolean addPlayer = false;
+
+    /**
+     * funcao responsavel pela criacao de um client
+     * Este vai tentar ligar a um servidor, que em caso de sucesso, envia uma mensagem para este, recebendo como resposta o nº de jogadores que la estao
+     * Este depois vai prontamente criar jogadores localmente, cada um representando um jogador.
+     * Este client tem 1 listener, cujo comportamento varia, dependendo do tipo de informacao que recebe
+     * Esta informacao varia desde a posicao dos jogadores, ate ao estado destes(se estao a voar, pousados no chao, etc);
+     */
     public void initializeClient(){
         client = new Client();
         client.start();
@@ -105,6 +119,11 @@ public class EstadoClient extends EstadoBase {
         }.start();
     }
 
+    /**
+     * construtor do estadoclient inicializa variaveis de logica de jogo como texturas e da camara,
+     * bem como a criacao de um cliente
+     * @param emg estado manager responsavel
+     */
     public EstadoClient(EstadosManager emg) {
         super(emg);
         wallpapper = new Texture("background/bck1.png");
@@ -119,6 +138,11 @@ public class EstadoClient extends EstadoBase {
         initializeClient();
     }
 
+    /**
+     * funcao responsavel por gerir o input do utilizador
+     * se carregar no botao 1, este retona para o menu inicial, parando o client, que envia ao servidor uma notificacao da sua saida
+     * ao clicar noutro local qualquer, envia informacao ao servidor de que deseja alterar a gravidade da sua personagem
+     */
     @Override
     protected void handleInput() {
         Logger banana = new Logger(TAG,Logger.INFO); // works
@@ -134,6 +158,11 @@ public class EstadoClient extends EstadoBase {
         }
     }
 
+    /**
+     * funcao responsavel por atualizar a velocidade, tempo decorrido, posicao da camara e criacao de novos jogadores, caso seja preciso
+     * Estas alteracoes sao condicionados, dependendo do atual estado do StateMachineConnection
+     * @param dt intervalo de tempo de update
+     */
     @Override
     public void update(float dt) {
         handleInput();

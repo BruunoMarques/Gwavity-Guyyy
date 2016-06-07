@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
 /**
- * Created by Jonas on 02-05-2016.
+ * Classe para carregar e animar texturas
  */
 public class MyAnim { // pq nao percebi um corno da classe animacao
     private Array<TextureRegion> frames;
@@ -16,6 +16,12 @@ public class MyAnim { // pq nao percebi um corno da classe animacao
     private int nFrames;
     private int currentFrame;
 
+	/**
+     * Construtor de MyAnim para animacoes que requerem frames
+     * @param tr textura, divida em regioes que servirao de frames da animacao
+     * @param nFrames numero de frames em que a textura esta dividida
+     * @param time tempo que demorara a animacao das frames
+     */
     public MyAnim(TextureRegion tr, int nFrames, float time){
         frames = new Array<TextureRegion>();
         this.nFrames = nFrames;
@@ -27,15 +33,11 @@ public class MyAnim { // pq nao percebi um corno da classe animacao
         maxFrameTime = time;
         currentFrameTime = 0;
     }
-/*nao e utilizado
-    public MyAnim(Array<Texture> textures, float time){
-        simpleFrames = textures;
-        nFrames = simpleFrames.size;
-        currentFrame =  0;
-    }
 
-
-*/
+	/**
+     * Atualiza a frame atual. Se a frame atual for a ultima da textura, continua a animacao a partir do inicio da textura
+     * @param dt tempo entre atualizacoes
+     */
     public void update(float dt){
         currentFrame += dt;
         if(currentFrameTime > maxFrameTime){
@@ -47,6 +49,7 @@ public class MyAnim { // pq nao percebi um corno da classe animacao
 
     }
 
+	
     public TextureRegion getFrame(){
         return frames.get(currentFrame);
     }

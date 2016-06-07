@@ -15,7 +15,7 @@ import com.gguy.game.estados.ferramentas.SkinInfo;
 import com.sun.prism.TextureMap;
 
 /**
- * Created by Jonas on 01-05-2016.
+ * Classe que representa o jogador
  */
 public class Guy {
 
@@ -45,8 +45,15 @@ public class Guy {
     private int walkF;
     private int jumpF;
 
+    //bruno cancer
+    public boolean isFaster = false, isSlower = false;
+
     private boolean bonusActivated = true;
     //por defeito é a skin do sonic
+	/**
+     * Inicializa a aparência por defeito do jogador.
+     * Isto inclui texturas e sons
+     */
     private void defaultSkin(){
         String name, jumpT, walkT, iwalkT;
         name = "sonic/sonic.png";
@@ -60,7 +67,11 @@ public class Guy {
         jumpS = Gdx.audio.newSound(Gdx.files.internal("sounds/jump.wav"));//todo mudar endereco
         deathS = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));//todo mudar endereco
     }
-
+	
+	/**
+     * Carrega uma nova aparencia do jogador. Isto inclui as texturas, animacoes e sons
+     * @param skin nome da nova aparencia
+     */
     private void loadSkin(String skin){
         //this.money -= money;
         String name, jumpT, walkT, iwalkT;
@@ -87,6 +98,12 @@ public class Guy {
         }
     }
 
+	/**
+     * Altera a aparencia do jogador. Isto inclui as texturas, animacoes e sons
+     * @param skin nome da nova aparencia
+     * @param walkframes  numero de frames da textura de animacao da corrida
+     * @param jumpframes  numero de frames da textura de animacao dos saltos
+     */
     private void buySkin(String skin, int walkframes, int jumpframes){ //todo gerir dinheiro ganho.
         walkF = walkframes;
         jumpF = jumpframes;
@@ -106,6 +123,14 @@ public class Guy {
         inverseWalkAnimation = anim.getSimpleAnimation();
     }
 
+	/**
+     * Construtor da classe Guy.
+     * Inicializa as variaveis necessarias, relacionadas com a aparencia, posicao e velocidade iniciais, a caixa de colisao e o estado inicial (a correr com gravidade regular)
+     * @param skin aparencia do jogador
+     * @param x abcissa inicial do jogador
+     * @param y ordenada inicial do jogador
+     * @param vel velocidade inicial do jogador
+     */
     public Guy(SkinInfo skin, int x, int y,float vel){
         posicao = new Vector2(x,y);
         speed = new Vector2(vel,0);
@@ -117,30 +142,53 @@ public class Guy {
         isFlying = true;
     }
 
+	/**
+     * Troca o valor do boolean que representa a gravidade.
+     */
     public void changeGravity(){
         isUpsideDown = isUpsideDown ? false : true;
         isFlying = true;
     }
 
+	/**
+     * @return true se a gravidade esta invertida
+     * @return false se a gravidade esta regular
+     */
     public boolean normalGravity(){
         return isUpsideDown;
     }
 
+	/**
+     * Muda o valor da variavel isFlying para false, o que significa que o jogador esta a correr sobre um obstaculo
+     */
     public void atingeChao(){
         isFlying = false;
     }
 
+	/**
+     * @return true se o jogador esta no meio de um salto
+     * @return false se o jogador esta esta a correr sobre um obstaculo
+     */
     public boolean isGuyFlying(){
         return isFlying;
     }
 
+	/**
+     * Atribui false ao boolean que representa o bonus de velocidade. Ou seja, o jogador nao ganhara velocidade extra
+     */
     public void ignoreBonusAccel(){
         bonusActivated = false;
     }
 
+	/**
+     * Atualiza a posicao do jogador, contabilizando a aceleracao (alterada ou nao por bonus) e se este se encontra preso atras de um obstaculo
+     * A atualizacao e diferente caso o jogador esteja em salto ou corrida, pois em salto nao acelera e os bonus nao tem efeito
+     * @param dt tempo decorrido entre updates
+     * @param colidiu true se o jogador esta a colidir com um obstaculo
+     */
     public void updatePos(float dt,boolean colidiu){
         if(isFlying){
-            speed.y = isUpsideDown ? 200 : -200;
+            speed.y = isUpsideDown ? 200*EstadoBase.W_RES : -200*EstadoBase.W_RES;
             speed.x += dt;
             speed.scl(dt);
             if(colidiu)posicao.add(0,speed.y);
@@ -156,6 +204,26 @@ public class Guy {
         if(!bonusActivated) bonusActivated = true;
         colisao.setPosition(posicao.x,posicao.y);
     }
+
+    public void addSpeed(){
+        speed.x += 10;
+    };
+
+    public void reduceSpeed(){
+        speed.x -= 10;
+    };
+
+    public void resetSpeed(){
+        if (isFaster){
+            speed.x -= 10;
+            isFaster = false;
+        }
+        if (isSlower){
+            speed.x += 10;
+            isSlower = false;
+        }
+
+    };
 
     public Vector2 getPosicao() {
         return posicao;
@@ -201,11 +269,18 @@ public class Guy {
         return width;
     }
 
+	/**
+     * Usado para manter o jogador a correr sobre o obstaculo
+     * @param y ordenada do obstaculo
+     */
     public void fixPosY(float y){
         posicao.y = y;
         colisao.y = y;
     }
 
+	/**
+     * Descarta memoria (fundo, texturas, sons, etc)
+     */
     public void freeMemory(){
         player.dispose();
         jumpTexture.dispose();

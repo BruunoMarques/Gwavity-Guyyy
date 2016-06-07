@@ -15,13 +15,17 @@ public class Muro extends MapStruct{
     private Vector2 obsCima, obsBaixo;
     private Rectangle colisaoCima, colisaoBaixo;
     private Random rand;
-
+    private float minY ;
+    private float maxY ;
     public Muro(float x){
         super(x);
         temp = new Texture("map/obst.png");//como e repetido poderia ser estatico
+        minY = EstadoBase.HEIGHT/4-temp.getHeight()*EstadoBase.H_RES/3;
+        maxY = EstadoBase.HEIGHT/2+EstadoBase.HEIGHT/8-temp.getHeight()*EstadoBase.H_RES/2;
         rand = new Random();
-        obsCima = new Vector2(x,EstadoBase.HEIGHT/2);
-        obsBaixo = new Vector2(x, obsCima.y - 50 - temp.getHeight());//todo hardcoded maman
+        obsBaixo = new Vector2(x,minY);
+        obsCima = new Vector2(x,maxY);
+
 
         colisaoCima = new Rectangle(obsCima.x,obsCima.y,temp.getWidth()*EstadoBase.W_RES,temp.getHeight()*EstadoBase.H_RES);
         colisaoBaixo = new Rectangle(obsBaixo.x,obsBaixo.y,temp.getWidth()*EstadoBase.W_RES,temp.getHeight()*EstadoBase.H_RES);
@@ -65,6 +69,11 @@ public class Muro extends MapStruct{
     public void reposition(float x){
         obsCima.x = x;
         obsBaixo.x = x;
+        float cenas = rand.nextFloat();
+        float random = 51*cenas*EstadoBase.H_RES;
+        if(rand.nextInt(2) == 1) random *= -1;
+        obsCima.y = maxY + random;
+        obsBaixo.y = minY + random;
         colisaoBaixo.setPosition(obsBaixo);
         colisaoCima.setPosition(obsCima);
     }
