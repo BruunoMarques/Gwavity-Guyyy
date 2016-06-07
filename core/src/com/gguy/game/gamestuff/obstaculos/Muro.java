@@ -9,6 +9,8 @@ import java.util.Random;
 
 /**
  * Created by Jonas on 01-05-2016.
+ * Classe que representa um tipo de estrutura do mapa
+ * Esta e formada por 2 muros, 1 superior e 1 inferior, com 1 buraco entre eles
  */
 public class Muro extends MapStruct{
     private Texture temp;
@@ -17,6 +19,13 @@ public class Muro extends MapStruct{
     private Random rand;
     private float minY ;
     private float maxY ;
+
+    /**
+     * Construtor responsavel por inicializar o Muro
+     * Este cria a textura e 2 caixas de colisao, que vao representar as 2 partes do muro, bem como posiciona-las
+     * num sitio inicial
+     * @param x posicao inicial
+     */
     public Muro(float x){
         super(x);
         temp = new Texture("map/obst.png");//como e repetido poderia ser estatico
@@ -48,6 +57,12 @@ public class Muro extends MapStruct{
         return obsBaixo;
     }
 
+    /**
+     * Funcao que calcula se um jogador colidiu com alguma das caixas de colisao da estrutura,
+     * fazendo update da ultima caixa de colisao recente (lastColided)
+     * @param player caixa de colisao do jogador
+     * @return true se colidiu, false em caso negativo
+     */
     public boolean ColideGuy(Rectangle player){
         if(player.overlaps(colisaoCima))
         {
@@ -62,21 +77,34 @@ public class Muro extends MapStruct{
         return false;
     }
 
+    /**
+     * dispose da textura
+     */
     public void freeMemory(){
         temp.dispose();
     }
 
+    /**
+     * funcao responsavel por reposicionar o muro numa dada localizacao x
+     * Ira tambem alterar a posicao vertical, aleatoriamente
+     * @param x posicao horizontal a reposicionar a estrutura
+     */
     public void reposition(float x){
         obsCima.x = x;
         obsBaixo.x = x;
         float cenas = rand.nextFloat();
-        float random = 51*cenas*EstadoBase.H_RES;
+        float random = 51*cenas*EstadoBase.H_RES; //trust me, i know what i'm doin
         if(rand.nextInt(2) == 1) random *= -1;
         obsCima.y = maxY + random;
         obsBaixo.y = minY + random;
         colisaoBaixo.setPosition(obsBaixo);
         colisaoCima.setPosition(obsCima);
     }
+
+    /**
+     *
+     * @return clone do muro a posicao 0x
+     */
     public Muro clone(){
         return new Muro(0);
     }

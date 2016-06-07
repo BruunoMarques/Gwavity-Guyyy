@@ -14,16 +14,21 @@ import java.util.Random;
  * Created by Jonas on 25-05-2016.
  * Classe responsavel por gerar o mapa
  * Definicao de mapa: vetor de estruturas do mapa randomizadas numa certa posicao
+ * Este vai pegar num vetor que contem todas as estruturas a randomizar, e vai fazer um "mapa"
+ * O random varia para cada tipo de estrutura
  */
 public class MapGenerator {
     private ArrayList<MapStruct> EstruturasARandomizar;
     private ArrayList<MapStruct> RandomMap;
     private Random random;
-    private float numberHoles = 0;
+    private float numberHoles = 0; //numero de buracos que se pode fazer no mapa
     public float smallestDistance;
     public float longestDistance;
 
-
+    /**
+     * construtor da classe
+     * responsavel por inicializar os atributos, bem como adicionar as estruturas a randomizar
+     */
     public MapGenerator(){
         EstruturasARandomizar = new ArrayList<MapStruct>();
         RandomMap = new ArrayList<MapStruct>();
@@ -33,6 +38,11 @@ public class MapGenerator {
         EstruturasARandomizar.add(new Muro(0));
         EstruturasARandomizar.add(new WalkPlatform(0));
     }
+
+    /**
+     * gera inicialmente uma parte do mapa que será o começo do mapa
+     * @return Mapa gerado inicial
+     */
     public ArrayList<MapStruct> initializeMap(){
         MapStruct lol;
         //float size = EstadoBase.HEIGHT/(lol.getTextura().getWidth());
@@ -49,7 +59,14 @@ public class MapGenerator {
         return RandomMap;
     }
 
-    public void randomType1(float compare, int i, float speed){
+    /**
+     * funcao responsavel por construir aleatoriamente o mapa, utilizando apenas
+     * estruturas do tipo WalkPlatform.
+     * Esta construcao e apenas efetuada se for preciso, ou seja, se um bloco estiver out of bonds
+     * @param compare menor distancia do bloco que precisa de ser alterado
+     * @param i indice do bloco/estrutura a ser alterado
+     */
+    public void randomType1(float compare, int i){
         if(RandomMap.get(i) instanceof WalkPlatform)
         {
             MapStruct lol =(MapStruct) EstruturasARandomizar.get(1).clone();
@@ -76,6 +93,13 @@ public class MapGenerator {
             }
         }
     }
+    /**
+     * funcao responsavel por construir aleatoriamente o mapa, utilizando apenas
+     * estruturas do tipo Muro
+     * Esta construcao e apenas efetuada se for preciso, ou seja, se um bloco estiver out of bonds
+     * @param compare menor distancia do bloco que precisa de ser alterado
+     * @param i indice do bloco/estrutura a ser alterado
+     */
     public boolean randomType2(float compare, int i){
         boolean existe = false;
         if(RandomMap.get(i) instanceof Muro){
@@ -98,6 +122,11 @@ public class MapGenerator {
         return existe;
     }
 
+    /**
+     * funcao responsavel por adicionar Muros ao mapa, caso ainda nao exista nenhuma estrutura deste genero.
+     * Esta e aleatoria, sendo que se aumenta a probabilidade de haver muros, se for possivel ainda fazer buracos no mapa
+     * @param naoExisteMuros indica se atualmente no mapa existem muros
+     */
     public void addType2(boolean naoExisteMuros){
         if(naoExisteMuros){
             int n_muros = 0;
@@ -115,12 +144,20 @@ public class MapGenerator {
         }
     }
 
+    /**
+     * funcao Principal responsavel por gerar o mapa
+     * Esta invoca as funcoes que iram, ou nao, reposicionar certas estruturas, caso necessario.
+     * E tambem responsavel por adicionar certas estruturas (aleatoriamente), dependendo de certas ocasioes(velocidade atual)
+     * Inicializa o numero de buracos possivel de fazer (nº de buracos = speed do jogo/tamanho do bloco do chao)
+     * @param speed velocidade do jogo atual
+     * @return Mapa gerado
+     */
     public ArrayList<MapStruct> generateMap(float speed){
         float compare = smallestDistance; //valor de x mais baixo
         boolean naoExisteMuros = true;
         numberHoles = speed / (160 * EstadoBase.W_RES);
         for(int i = 0;i<RandomMap.size();i++){
-            randomType1(compare, i, speed);
+            randomType1(compare, i);
             if(randomType2(compare, i))naoExisteMuros = false;
         }
         if(smallestDistance == compare){ //bugg fixing no seu melhor
@@ -130,6 +167,9 @@ public class MapGenerator {
         return RandomMap;
     }
 
+    /**
+     * funcao responsavel por libertar memoria que as estuturas alocaram
+     */
     public void disposeMap(){
         for(MapStruct lol : EstruturasARandomizar)
             lol.freeMemory();
